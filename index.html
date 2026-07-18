@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+        :root { color-scheme: light; }
+        * { box-sizing: border-box; }
+        body {
+              margin: 0;
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+              background: #f7f7f8;
+              color: #1a1a1a;
+              padding: 24px;
+        }
+        h1 { font-size: 22px; margin: 0 0 4px 0; }
+        h2 { font-size: 15px; margin: 30px 0 10px 0; }
+        .subtitle { color: #666; font-size: 13px; margin-bottom: 16px; }
+        .status-note {
+              background: #fff8e1;
+              border: 1px solid #f0d98c;
+              border-radius: 8px;
+              padding: 10px 14px;
+              font-size: 13px;
+              color: #6b5900;
+              margin-bottom: 20px;
+        }
+        .order-strip {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+              margin-bottom: 8px;
+        }
+        .order-pill {
+              background: #fff;
+              border: 1px solid #dcdfe4;
+              border-radius: 999px;
+              padding: 4px 12px;
+              font-size: 12px;
+              font-weight: 600;
+              color: #333;
+        }
+        .order-pill.next {
+              background: #2f6fed;
+              border-color: #2f6fed;
+              color: #fff;
+        }
+        .order-note { font-size: 12px; color: #888; margin-bottom: 4px; }
+
+        table {
+              width: 100%;
+              border-collapse: collapse;
+              background: #fff;
+              border: 1px solid #e5e5e5;
+              border-radius: 8px;
+              overflow: hidden;
+              font-size: 13px;
+        }
+        th, td {
+              border-bottom: 1px solid #eee;
+              border-right: 1px solid #f0f0f0;
+              padding: 6px 10px;
+              text-align: center;
+        }
+        th:first-child, td:first-child { text-align: left; }
+        th {
+              background: #fafafa;
+              font-weight: 600;
+              color: #444;
+              font-size: 12px;
+        }
+        td.empty { color: #ccc; }
+        tr:last-child td { border-bottom: none; }
+        .empty-state {
+              padding: 24px;
+              text-align: center;
+              color: #999;
+              font-size: 13px;
+              background: #fff;
+              border: 1px dashed #ddd;
+              border-radius: 8px;
+        }
+        .two-col {
+              display: grid;
+              grid-template-columns: 320px 1fr;
+              gap: 20px;
+              align-items: start;
+        }
+        @media (max-width: 900px) {
+              .two-col { grid-template-columns: 1fr; }
+        }
+        .footer-row td {
+              font-weight: 700;
+              background: #fafafa;
+        }
+        .draft-tag {
+              display: inline-block;
+              font-size: 10px;
+              font-weight: 700;
+              background: #eaf1ff;
+              color: #2f6fed;
+              border-radius: 4px;
+              padding: 1px 6px;
+              margin-left: 6px;
+        }
+        td.winner { font-weight: 700; background: #eefaf0; color: #1a7a34; }
+        td.highbid { font-weight: 700; color: #111; }
+        td.outbid { font-weight: 400; color: #bbb; }
+        td.folded { color: #bbb; }
+      </style>
+  </head>
+  <body>
+
+    <h1>FFL Keeper-Salary XV -- 2026 Auction</h1>
+  <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>div>
+  
+  <div class="status-note">
+    TEST SCENARIO -- the first four call-outs are a rookie draft at pre-set salaries, not open bidding. Real auction picks resume after that. This is a working test; revert to the empty base view when testing wraps up.
+  </div>div>
+  
+  <h2>Call-Out Order</h2>
+  <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>div>
+  <div class="order-strip" id="orderStrip"></div>div>
+  
+  <h2>Auction Log</h2>
+  <table id="logTable">
+    <thead><tr id="logHeader"></tr>tr></thead>
+    <tbody></tbody>
+  </table>table>
+  
+  <h2 style="margin-top:24px;">Team Max / $ Out</h2>
+  <table id="maxOutTable">
+    <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
+    <tbody></tbody>
+  </table>table>
+  
+  <h2>Roster Grid</h2>
+  <table id="rosterTable">
+    <thead><tr id="rosterHeader"></tr></thead>
+    <tbody></tbody>
+  </table>table>
+  
+  <script>
+    const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
+    const rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
+    const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
+                         "B (QB)","B (RB)","B (RB)","B (RB)","B (RB)",
+                         "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
+                         "B (TE)","B (DEF)"];
+
+    const picks = [
+      {
+            callout: "Chad",
+            player: "Jeremiyah Love",
+            pos: "RB",
+            team: "ARI",
+            draft: true,
+            winner: "Chad",
+            amount: 9
+      },
+      {
+            callout: "Tarry",
+            player: "Joe Burrow",
+            pos: "QB",
+            team: "CIN",
+            bids: { Tarry: 10, Aric: 9, Jeremy: "out", Powers: "out" }
+      }
+      ];
+    const resolvedCount = picks.filter(p => p.winner).length;
+    const nextIndex = resolvedCount % bidOrder.length;
+
+    const stripEl = document.getElementById('orderStrip');
+    bidOrder.forEach((name, i) => {
+        const span = document.createElement('span');
+        span.className = 'order-pill' + (i === nextIndex ? ' next' : '');
+        span.textContent = (i === nextIndex ? String.fromCharCode(9654) + ' ' : '') + name;
+        stripEl.appendChild(span);
+    });
+
+    const logHeader = document.getElementById('logHeader');
+    logHeader.innerHTML = ['Call Out','Player','Pos','Team', ...bidOrder].map(h => '<th>' + h + '</th>').join('');
+    const logBody = document.querySelector('#logTable tbody');
+    picks.forEach(p => {
+        const tr = document.createElement('tr');
+        let cells = '<td>' + p.callout + '</td><td>' + p.player + (p.draft ? '<span class="draft-tag">Rookie Draft</span>' : '') + '</td><td>' + p.pos + '</td><td>' + p.team + '</td>';
+
+        if (p.winner) {
+              bidOrder.forEach(owner => {
+                      if (owner === p.winner) {
+                                cells += '<td class="winner">$' + p.amount + '</td>';
+                      } else {
+                                cells += '<td class="folded">out</td>';
+                      }
+              });
+        } else {
+              const bids = p.bids || {};
+              const highBidder = Object.entries(bids)
+                .filter(([, v]) => typeof v === 'number')
+                .sort((a, b) => b[1] - a[1])[0]?.[0];
+              bidOrder.forEach(owner => {
+                      const v = bids[owner];
+                      if (owner === highBidder) {
+                                cells += '<td class="highbid">$' + v + '</td>';
+                      } else if (typeof v === 'number') {
+                                cells += '<td class="outbid">$' + v + '</td>';
+                      } else if (v === 'out') {
+                                cells += '<td class="folded">out</td>';
+                      } else {
+                                cells += '<td class="empty">--</td>';
+                      }
+              });
+        }
+
+        tr.innerHTML = cells;
+        logBody.appendChild(tr);
+    });
+
+    const maxOutBody = document.querySelector('#maxOutTable tbody');
+    rosterOwners.forEach(name => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + name + '</td><td class="empty">--</td><td class="empty">--</td>';
+        maxOutBody.appendChild(tr);
+    });
+
+    const rosterHeader = document.getElementById('rosterHeader');
+    rosterHeader.innerHTML = '<th>Position</th>' + rosterOwners.map(o => '<th>' + o + '</th>').join('');
+    const rosterBody = document.querySelector('#rosterTable tbody');
+    positions.forEach(pos => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + pos + '</td>' + rosterOwners.map(() => '<td class="empty">--</td>').join('');
+        rosterBody.appendChild(tr);
+    });
+    const footerTr = document.createElement('tr');
+    footerTr.className = 'footer-row';
+    footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(() => '<td>0</td>').join('');
+    rosterBody.appendChild(footerTr);
+  </script>
+
+  </body>
+</html>
+
+  </script></tbody></tbody></th></th></tr></tbody></thead></h2></h1>
+  </body>
+    </style>
+  </head>
+</html>
