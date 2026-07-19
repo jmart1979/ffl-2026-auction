@@ -45,6 +45,7 @@
     color: #fff;
   }
   .order-note { font-size: 12px; color: #888; margin-bottom: 4px; }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -69,6 +70,24 @@
   }
   td.empty { color: #ccc; }
   tr:last-child td { border-bottom: none; }
+  .empty-state {
+    padding: 24px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    background: #fff;
+    border: 1px dashed #ddd;
+    border-radius: 8px;
+  }
+  .two-col {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
   .footer-row td {
     font-weight: 700;
     background: #fafafa;
@@ -91,121 +110,171 @@
 </style>
 </head>
 <body>
-<h1>FFL Keeper-Salary XV -- 2026 Auction</h1>
+
+<h1>FFL Keeper-Salary XIX — 2026 Auction</h1>
 <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
+
 <div class="status-note">
-  TEST SCENARIO -- the first four call-outs are a rookie draft at pre-set salaries, not open bidding. Real auction picks resume after that. This is a working test; revert to the empty base view when testing wraps up.
+  TEST SCENARIO — the first four call-outs are a rookie draft at pre-set salaries, not open bidding. Real auction picks resume after that. This is a working test; revert to the empty base view when testing wraps up.
 </div>
+
 <h2>Call-Out Order</h2>
 <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
 <div class="order-strip" id="orderStrip"></div>
+
 <h2>Auction Log</h2>
 <table id="logTable">
   <thead><tr id="logHeader"></tr></thead>
   <tbody></tbody>
 </table>
+
 <h2 style="margin-top:24px;">Team Max / $ Out</h2>
 <table id="maxOutTable">
   <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
   <tbody></tbody>
 </table>
+
 <h2>Roster Grid</h2>
 <table id="rosterTable">
   <thead><tr id="rosterHeader"></tr></thead>
   <tbody></tbody>
 </table>
+
 <script>
-var bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
-var rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
-var positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF","B (QB)","B (RB)","B (RB)","B (RB)","B (RB)","B (WR)","B (WR)","B (WR)","B (WR)","B (WR)","B (TE)","B (DEF)"];
-var picks = [
-  { callout: "Chad", player: "Jeremiyah Love", pos: "RB", team: "ARI", draft: true, winner: "Chad", amount: 9 },
-  { callout: "Tarry", player: "Joe Burrow", pos: "QB", team: "CIN", bids: { Tarry: 10, Aric: 9, Jeremy: "out", Powers: "out" } }
+const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
+const rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
+const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
+  "B (QB)","B (RB)","B (RB)","B (RB)","B (RB)",
+  "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
+  "B (TE)","B (DEF)"];
+
+// Auction log data (test scenario)
+// Each pick is either resolved (has a `winner`+`amount`) or still in progress
+// (has a `bids` map of owner -> number (current high bid) or "out").
+const picks = [
+  {
+    callout: "Chad",
+    player: "Jeremiyah Love",
+    pos: "RB",
+    team: "ARI",
+    draft: true,
+    winner: "Chad",
+    amount: 9
+  },
+  {
+    callout: "Tarry",
+    player: "Joe Burrow",
+    pos: "QB",
+    team: "CIN",
+    bids: { Tarry: 10, Aric: 9, Jeremy: "out", Powers: "out" }
+  }
 ];
-var resolvedCount = picks.filter(function(p){ return p.winner; }).length;
-var nextIndex = resolvedCount % bidOrder.length;
-var stripEl = document.getElementById('orderStrip');
-bidOrder.forEach(function(name, i){
-  var span = document.createElement('span');
+const resolvedCount = picks.filter(p => p.winner).length;
+const nextIndex = resolvedCount % bidOrder.length; // whose call-out is current/next
+
+// Call-out order strip
+const stripEl = document.getElementById('orderStrip');
+bidOrder.forEach((name, i) => {
+  const span = document.createElement('span');
   span.className = 'order-pill' + (i === nextIndex ? ' next' : '');
-  span.textContent = (i === nextIndex ? String.fromCharCode(9654) + ' ' : '') + name;
+  span.textContent = (i === nextIndex ? '▶ ' : '') + name;
   stripEl.appendChild(span);
 });
-var logHeader = document.getElementById('logHeader');
-logHeader.innerHTML = ['Call Out','Player','Pos','Team'].concat(bidOrder).map(function(h){ return '<th>' + h + '</th>'; }).join('');
-var logBody = document.querySelector('#logTable tbody');
-picks.forEach(function(p){
-  var tr = document.createElement('tr');
-  var cells = '<td>' + p.callout + '</td><td>' + p.player + (p.draft ? '<span class="draft-tag">Rookie Draft</span>' : '') + '</td><td>' + p.pos + '</td><td>' + p.team + '</td>';
+
+// Auction log table
+const logHeader = document.getElementById('logHeader');
+logHeader.innerHTML = ['Call Out','Player','Pos','Team', ...bidOrder].map(h => `<th>${h}</th>`).join('');
+const logBody = document.querySelector('#logTable tbody');
+picks.forEach(p => {
+  const tr = document.createElement('tr');
+  let cells = `<td>${p.callout}</td><td>${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}</td><td>${p.pos}</td><td>${p.team}</td>`;
+
   if (p.winner) {
-    bidOrder.forEach(function(owner){
-      if (owner === p.winner) { cells += '<td class="winner">$' + p.amount + '</td>'; }
-      else { cells += '<td class="folded">out</td>'; }
+    // Resolved pick: winner shows green, everyone else shows "out"
+    bidOrder.forEach(owner => {
+      if (owner === p.winner) {
+        cells += `<td class="winner">$${p.amount}</td>`;
+      } else {
+        cells += `<td class="folded">out</td>`;
+      }
     });
   } else {
-    var bids = p.bids || {};
-    var highBidder = null;
-    var highVal = -Infinity;
-    Object.keys(bids).forEach(function(owner){
-      var v = bids[owner];
-      if (typeof v === 'number' && v > highVal) { highVal = v; highBidder = owner; }
-    });
-    bidOrder.forEach(function(owner){
-      var v = bids[owner];
-      if (owner === highBidder) { cells += '<td class="highbid">$' + v + '</td>'; }
-      else if (typeof v === 'number') { cells += '<td class="outbid">$' + v + '</td>'; }
-      else if (v === 'out') { cells += '<td class="folded">out</td>'; }
-      else { cells += '<td class="empty">--</td>'; }
+    // Bidding still in progress:
+    //  - current high bid: bold black
+    //  - bids that have been surpassed: light gray (still shows their amount)
+    //  - folded owners: light gray "out"
+    //  - owners who haven't acted yet: blank dash
+    const bids = p.bids || {};
+    const highBidder = Object.entries(bids)
+      .filter(([, v]) => typeof v === 'number')
+      .sort((a, b) => b[1] - a[1])[0]?.[0];
+    bidOrder.forEach(owner => {
+      const v = bids[owner];
+      if (owner === highBidder) {
+        cells += `<td class="highbid">$${v}</td>`;
+      } else if (typeof v === 'number') {
+        cells += `<td class="outbid">$${v}</td>`;
+      } else if (v === 'out') {
+        cells += `<td class="folded">out</td>`;
+      } else {
+        cells += `<td class="empty">—</td>`;
+      }
     });
   }
+
   tr.innerHTML = cells;
   logBody.appendChild(tr);
 });
-var maxOutBody = document.querySelector('#maxOutTable tbody');
-rosterOwners.forEach(function(name){
-  var tr = document.createElement('tr');
-  tr.innerHTML = '<td>' + name + '</td><td class="empty">--</td><td class="empty">--</td>';
+
+// Team Max / $ Out table
+const maxOutBody = document.querySelector('#maxOutTable tbody');
+rosterOwners.forEach(name => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${name}</td><td class="empty">—</td><td class="empty">—</td>`;
   maxOutBody.appendChild(tr);
 });
 
-var rosterAssignments = {};
-rosterOwners.forEach(function(o){ rosterAssignments[o] = new Array(positions.length).fill(null); });
+// Roster grid — won players get slotted into the first open matching spot
+// (starting slot first, then bench) for their winning owner.
+const rosterAssignments = {};
+rosterOwners.forEach(o => { rosterAssignments[o] = new Array(positions.length).fill(null); });
 
 function findOpenSlot(owner, pos) {
-  for (var i = 0; i < positions.length; i++) {
+  for (let i = 0; i < positions.length; i++) {
     if (positions[i] === pos && !rosterAssignments[owner][i]) return i;
   }
-  var benchLabel = 'B (' + pos + ')';
-  for (var i = 0; i < positions.length; i++) {
+  const benchLabel = `B (${pos})`;
+  for (let i = 0; i < positions.length; i++) {
     if (positions[i] === benchLabel && !rosterAssignments[owner][i]) return i;
   }
   return -1;
 }
 
-picks.forEach(function(p){
-  if (!p.winner) return;
-  var slot = findOpenSlot(p.winner, p.pos);
+picks.forEach(p => {
+  if (!p.winner) return; // only resolved picks land on the roster
+  const slot = findOpenSlot(p.winner, p.pos);
   if (slot !== -1) rosterAssignments[p.winner][slot] = p.player;
 });
 
-var rosterHeader = document.getElementById('rosterHeader');
-rosterHeader.innerHTML = '<th>Position</th>' + rosterOwners.map(function(o){ return '<th>' + o + '</th>'; }).join('');
-var rosterBody = document.querySelector('#rosterTable tbody');
-positions.forEach(function(pos, posIdx){
-  var tr = document.createElement('tr');
-  tr.innerHTML = '<td>' + pos + '</td>' + rosterOwners.map(function(owner){
-    var player = rosterAssignments[owner][posIdx];
-    return player ? ('<td class="filled">' + player + '</td>') : '<td class="empty">--</td>';
+const rosterHeader = document.getElementById('rosterHeader');
+rosterHeader.innerHTML = '<th>Position</th>' + rosterOwners.map(o => `<th>${o}</th>`).join('');
+const rosterBody = document.querySelector('#rosterTable tbody');
+positions.forEach((pos, posIdx) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${pos}</td>` + rosterOwners.map(owner => {
+    const player = rosterAssignments[owner][posIdx];
+    return player ? `<td class="filled">${player}</td>` : '<td class="empty">—</td>';
   }).join('');
   rosterBody.appendChild(tr);
 });
-var footerTr = document.createElement('tr');
+const footerTr = document.createElement('tr');
 footerTr.className = 'footer-row';
-footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(function(owner){
-  var count = rosterAssignments[owner].filter(Boolean).length;
-  return '<td>' + count + '</td>';
+footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
+  const count = rosterAssignments[owner].filter(Boolean).length;
+  return `<td>${count}</td>`;
 }).join('');
 rosterBody.appendChild(footerTr);
 </script>
+
 </body>
 </html>
