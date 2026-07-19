@@ -87,6 +87,7 @@
   td.highbid { font-weight: 700; color: #111; }
   td.outbid { font-weight: 400; color: #bbb; }
   td.folded { color: #bbb; }
+  td.filled { font-weight: 600; background: #f3f8ff; color: #1a1a1a; }
 </style>
 </head>
 <body>
@@ -166,17 +167,44 @@ rosterOwners.forEach(function(name){
   tr.innerHTML = '<td>' + name + '</td><td class="empty">--</td><td class="empty">--</td>';
   maxOutBody.appendChild(tr);
 });
+
+var rosterAssignments = {};
+rosterOwners.forEach(function(o){ rosterAssignments[o] = new Array(positions.length).fill(null); });
+
+function findOpenSlot(owner, pos) {
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i] === pos && !rosterAssignments[owner][i]) return i;
+  }
+  var benchLabel = 'B (' + pos + ')';
+  for (var i = 0; i < positions.length; i++) {
+    if (positions[i] === benchLabel && !rosterAssignments[owner][i]) return i;
+  }
+  return -1;
+}
+
+picks.forEach(function(p){
+  if (!p.winner) return;
+  var slot = findOpenSlot(p.winner, p.pos);
+  if (slot !== -1) rosterAssignments[p.winner][slot] = p.player;
+});
+
 var rosterHeader = document.getElementById('rosterHeader');
 rosterHeader.innerHTML = '<th>Position</th>' + rosterOwners.map(function(o){ return '<th>' + o + '</th>'; }).join('');
 var rosterBody = document.querySelector('#rosterTable tbody');
-positions.forEach(function(pos){
+positions.forEach(function(pos, posIdx){
   var tr = document.createElement('tr');
-  tr.innerHTML = '<td>' + pos + '</td>' + rosterOwners.map(function(){ return '<td class="empty">--</td>'; }).join('');
+  tr.innerHTML = '<td>' + pos + '</td>' + rosterOwners.map(function(owner){
+    var player = rosterAssignments[owner][posIdx];
+    return player ? ('<td class="filled">' + player + '</td>') : '<td class="empty">--</td>';
+  }).join('');
   rosterBody.appendChild(tr);
 });
 var footerTr = document.createElement('tr');
 footerTr.className = 'footer-row';
-footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(function(){ return '<td>0</td>'; }).join('');
+footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(function(owner){
+  var count = rosterAssignments[owner].filter(Boolean).length;
+  return '<td>' + count + '</td>';
+}).join('');
 rosterBody.appendChild(footerTr);
 </script>
 </body>
