@@ -65,11 +65,20 @@
     margin-top: 18px;
     font-family: "Courier New", monospace;
     font-weight: 700;
-    color: #fff;
     letter-spacing: 4px;
     font-size: 18px;
   }
-  .tecmo-menu span { color: #ffd54a; margin-right: 6px; }
+  .tecmo-menu-item {
+    color: #7a7a7a;
+    padding: 3px 0;
+  }
+  .tecmo-menu-item.selected { color: #fff; }
+  .tecmo-menu-item span {
+    display: inline-block;
+    width: 18px;
+    color: #ffd54a;
+    margin-right: 6px;
+  }
   .tecmo-footer {
     margin-top: 22px;
     font-family: "Courier New", monospace;
@@ -145,7 +154,10 @@
 
 <div class="tecmo-banner">
   <img class="tecmo-title-img" alt="FFL Keeper-Salary XIX" src="banner.png">
-  <div class="tecmo-menu"><span>&#9654;</span>8 PLAYERS</div>
+  <div class="tecmo-menu">
+    <div class="tecmo-menu-item selected"><span>&#9654;</span>8 PLAYERS</div>
+    <div class="tecmo-menu-item"><span>&nbsp;</span>10 PLAYERS</div>
+  </div>
   <div class="tecmo-footer">2026 AUCTION TRACKER</div>
 </div>
 <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
