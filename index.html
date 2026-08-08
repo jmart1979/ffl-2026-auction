@@ -45,6 +45,19 @@
     color: #fff;
   }
   .order-note { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .sprite-8bit {
+    width: 60px;
+    height: 80px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    flex-shrink: 0;
+  }
 
   table {
     width: 100%;
@@ -111,8 +124,13 @@
 </head>
 <body>
 
-<h1>FFL Keeper-Salary XIX — 2026 Auction</h1>
-<div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
+<div class="title-row">
+  <img class="sprite-8bit" alt="8-bit football player" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAgCAYAAAAIXrg4AAABR0lEQVR4nO2VPU7EMBCFny0k6qkpoFq2YSVaiuwtEHdIH+UGQe73DrkGKWhXWpplq1BQUOUIQ2XIj3/GS9LxSsfzzczzOFaI6OohZ9f65+tOxWIBQJ8Dj30TJZAAJHsuQh+vsQ8Gf+A+xg9bNIeCBxWzQHLQoklo63KQ6ObpWRQHCCwaw31rPnkrebm9E0G272/BbpwdSOGSvZMEzCyGS2J038+2LrlZb1L5UEp5bdIWHAJkxwOy4yE5MQBoO3KhJM16g1hnbV1ynq0mDA38znXKfEs1AObZih+/LpMhdlSJiLuuGzB/psjVXqrGcMDRwa45KQAwxogSFkUhv2gWPqeC74HVuEppd4DnV9EHuCzor8WSLf7gTEREbIxhqQ2xvc4OqqoSF2TtMsYwEcWLIiLZxnNi/wL3cRY5ZNeNnq16rxaF/yukb66YjGBrEalQAAAAAElFTkSuQmCC">
+  <div>
+    <h1>FFL Keeper-Salary XIX — 2026 Auction</h1>
+    <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
+  </div>
+</div>
 
 <div class="status-note">
   TEST SCENARIO — the first four call-outs are a rookie draft at pre-set salaries, not open bidding. Real auction picks resume after that. This is a working test; revert to the empty base view when testing wraps up.
