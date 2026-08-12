@@ -67,6 +67,29 @@
     color: #fff;
   }
 
+  .tab-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #dcdfe4;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .tab-btn.active {
+    background: #2f6fed;
+    border-color: #2f6fed;
+    color: #fff;
+  }
+
   .tecmo-banner {
     background: #000;
     border: 4px solid #2a2a2a;
@@ -184,33 +207,53 @@
 </div>
 <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
 
-<h2 style="margin-top:0;">Keepers</h2>
-<div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
-<div class="keeper-strip" id="keeperStrip"></div>
+<div class="tab-toggle">
+  <button type="button" class="tab-btn active" id="tabAuctionBtn" onclick="showTab('auction')">Auction</button>
+  <button type="button" class="tab-btn" id="tabRostersBtn" onclick="showTab('rosters')">Rosters</button>
+</div>
 
-<h2>Call-Out Order</h2>
-<div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
-<div class="order-strip" id="orderStrip"></div>
+<div id="auctionTab">
 
-<h2>Auction Log</h2>
-<table id="logTable">
-  <thead><tr id="logHeader"></tr></thead>
-  <tbody></tbody>
-</table>
+  <h2 style="margin-top:0;">Keepers</h2>
+  <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
+  <div class="keeper-strip" id="keeperStrip"></div>
 
-<h2 style="margin-top:24px;">Team Max / $ Out</h2>
-<table id="maxOutTable">
-  <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
-  <tbody></tbody>
-</table>
+  <h2>Call-Out Order</h2>
+  <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
+  <div class="order-strip" id="orderStrip"></div>
 
-<h2>Roster Grid</h2>
-<table id="rosterTable">
-  <thead><tr id="rosterHeader"></tr></thead>
-  <tbody></tbody>
-</table>
+  <h2>Auction Log</h2>
+  <table id="logTable">
+    <thead><tr id="logHeader"></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <h2 style="margin-top:24px;">Team Max / $ Out</h2>
+  <table id="maxOutTable">
+    <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<div id="rostersTab" style="display:none;">
+
+  <h2 style="margin-top:0;">Roster Grid</h2>
+  <table id="rosterTable">
+    <thead><tr id="rosterHeader"></tr></thead>
+    <tbody></tbody>
+  </table>
+
+</div>
 
 <script>
+function showTab(tab) {
+  document.getElementById('auctionTab').style.display = tab === 'auction' ? '' : 'none';
+  document.getElementById('rostersTab').style.display = tab === 'rosters' ? '' : 'none';
+  document.getElementById('tabAuctionBtn').classList.toggle('active', tab === 'auction');
+  document.getElementById('tabRostersBtn').classList.toggle('active', tab === 'rosters');
+}
+
 const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
 const rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
 const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
