@@ -46,6 +46,27 @@
   }
   .order-note { font-size: 12px; color: #888; margin-bottom: 4px; }
 
+  .keeper-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .keeper-pill {
+    background: #fff;
+    border: 1px solid #dcdfe4;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+  }
+  .keeper-pill.in {
+    background: #1a7a34;
+    border-color: #1a7a34;
+    color: #fff;
+  }
+
   .tecmo-banner {
     background: #000;
     border: 4px solid #2a2a2a;
@@ -163,6 +184,10 @@
 </div>
 <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
 
+<h2 style="margin-top:0;">Keepers</h2>
+<div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
+<div class="keeper-strip" id="keeperStrip"></div>
+
 <h2>Call-Out Order</h2>
 <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
 <div class="order-strip" id="orderStrip"></div>
@@ -193,6 +218,18 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
   "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
   "B (TE)","B (DEF)"];
 
+// Keeper submission status ? teams turn green here once their keepers are in.
+// rosterOwners is already alphabetical, so it's reused for this list.
+const keepersIn = ["Jeremy"];
+
+const keeperStripEl = document.getElementById('keeperStrip');
+rosterOwners.forEach(name => {
+  const span = document.createElement('span');
+  span.className = 'keeper-pill' + (keepersIn.includes(name) ? ' in' : '');
+  span.textContent = name;
+  keeperStripEl.appendChild(span);
+});
+
 // Auction log data
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
@@ -205,7 +242,7 @@ const stripEl = document.getElementById('orderStrip');
 bidOrder.forEach((name, i) => {
   const span = document.createElement('span');
   span.className = 'order-pill' + (i === nextIndex ? ' next' : '');
-  span.textContent = (i === nextIndex ? '? ' : '') + name;
+  span.textContent = (i === nextIndex ? '\u25B6 ' : '') + name;
   stripEl.appendChild(span);
 });
 
@@ -245,7 +282,7 @@ picks.forEach(p => {
       } else if (v === 'out') {
         cells += `<td class="folded">out</td>`;
       } else {
-        cells += `<td class="empty">?</td>`;
+        cells += `<td class="empty">\u2014</td>`;
       }
     });
   }
@@ -258,7 +295,7 @@ picks.forEach(p => {
 const maxOutBody = document.querySelector('#maxOutTable tbody');
 rosterOwners.forEach(name => {
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td class="empty">?</td><td class="empty">?</td>`;
+  tr.innerHTML = `<td>${name}</td><td class="empty">\u2014</td><td class="empty">\u2014</td>`;
   maxOutBody.appendChild(tr);
 });
 
@@ -291,7 +328,7 @@ positions.forEach((pos, posIdx) => {
   const tr = document.createElement('tr');
   tr.innerHTML = `<td>${pos}</td>` + rosterOwners.map(owner => {
     const player = rosterAssignments[owner][posIdx];
-    return player ? `<td class="filled">${player}</td>` : '<td class="empty">?</td>';
+    return player ? `<td class="filled">${player}</td>` : '<td class="empty">\u2014</td>';
   }).join('');
   rosterBody.appendChild(tr);
 });
