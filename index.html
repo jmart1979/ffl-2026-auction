@@ -163,10 +163,6 @@
 </div>
 <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
 
-<div class="status-note">
-  TEST SCENARIO — the first four call-outs are a rookie draft at pre-set salaries, not open bidding. Real auction picks resume after that. This is a working test; revert to the empty base view when testing wraps up.
-</div>
-
 <h2>Call-Out Order</h2>
 <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
 <div class="order-strip" id="orderStrip"></div>
@@ -197,27 +193,10 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
   "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
   "B (TE)","B (DEF)"];
 
-// Auction log data (test scenario)
+// Auction log data
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
-const picks = [
-  {
-    callout: "Chad",
-    player: "Jeremiyah Love",
-    pos: "RB",
-    team: "ARI",
-    draft: true,
-    winner: "Chad",
-    amount: 9
-  },
-  {
-    callout: "Tarry",
-    player: "Joe Burrow",
-    pos: "QB",
-    team: "CIN",
-    bids: { Tarry: 10, Aric: 9, Jeremy: "out", Powers: "out" }
-  }
-];
+const picks = [];
 const resolvedCount = picks.filter(p => p.winner).length;
 const nextIndex = resolvedCount % bidOrder.length; // whose call-out is current/next
 
@@ -226,7 +205,7 @@ const stripEl = document.getElementById('orderStrip');
 bidOrder.forEach((name, i) => {
   const span = document.createElement('span');
   span.className = 'order-pill' + (i === nextIndex ? ' next' : '');
-  span.textContent = (i === nextIndex ? '▶ ' : '') + name;
+  span.textContent = (i === nextIndex ? '? ' : '') + name;
   stripEl.appendChild(span);
 });
 
@@ -266,7 +245,7 @@ picks.forEach(p => {
       } else if (v === 'out') {
         cells += `<td class="folded">out</td>`;
       } else {
-        cells += `<td class="empty">—</td>`;
+        cells += `<td class="empty">?</td>`;
       }
     });
   }
@@ -279,11 +258,11 @@ picks.forEach(p => {
 const maxOutBody = document.querySelector('#maxOutTable tbody');
 rosterOwners.forEach(name => {
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td class="empty">—</td><td class="empty">—</td>`;
+  tr.innerHTML = `<td>${name}</td><td class="empty">?</td><td class="empty">?</td>`;
   maxOutBody.appendChild(tr);
 });
 
-// Roster grid — won players get slotted into the first open matching spot
+// Roster grid ? won players get slotted into the first open matching spot
 // (starting slot first, then bench) for their winning owner.
 const rosterAssignments = {};
 rosterOwners.forEach(o => { rosterAssignments[o] = new Array(positions.length).fill(null); });
@@ -312,7 +291,7 @@ positions.forEach((pos, posIdx) => {
   const tr = document.createElement('tr');
   tr.innerHTML = `<td>${pos}</td>` + rosterOwners.map(owner => {
     const player = rosterAssignments[owner][posIdx];
-    return player ? `<td class="filled">${player}</td>` : '<td class="empty">—</td>';
+    return player ? `<td class="filled">${player}</td>` : '<td class="empty">?</td>';
   }).join('');
   rosterBody.appendChild(tr);
 });
