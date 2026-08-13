@@ -46,50 +46,6 @@
   }
   .order-note { font-size: 12px; color: #888; margin-bottom: 4px; }
 
-  .keeper-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .keeper-pill {
-    background: #fff;
-    border: 1px solid #dcdfe4;
-    border-radius: 999px;
-    padding: 4px 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #333;
-  }
-  .keeper-pill.in {
-    background: #1a7a34;
-    border-color: #1a7a34;
-    color: #fff;
-  }
-
-  .tab-toggle {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 22px;
-  }
-  .tab-btn {
-    flex: 1;
-    background: #fff;
-    border: 1px solid #dcdfe4;
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #555;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .tab-btn.active {
-    background: #2f6fed;
-    border-color: #2f6fed;
-    color: #fff;
-  }
-
   .tecmo-banner {
     background: #000;
     border: 4px solid #2a2a2a;
@@ -207,53 +163,33 @@
 </div>
 <div class="subtitle">Live tracker, matching the league's usual auction sheet</div>
 
-<div class="tab-toggle">
-  <button type="button" class="tab-btn active" id="tabAuctionBtn" onclick="showTab('auction')">Auction</button>
-  <button type="button" class="tab-btn" id="tabRostersBtn" onclick="showTab('rosters')">Rosters</button>
+<div class="status-note">
+  TEST SCENARIO — the first four call-outs are a rookie draft at pre-set salaries, not open bidding. Real auction picks resume after that. This is a working test; revert to the empty base view when testing wraps up.
 </div>
 
-<div id="auctionTab">
+<h2>Call-Out Order</h2>
+<div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
+<div class="order-strip" id="orderStrip"></div>
 
-  <h2 style="margin-top:0;">Keepers</h2>
-  <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
-  <div class="keeper-strip" id="keeperStrip"></div>
+<h2>Auction Log</h2>
+<table id="logTable">
+  <thead><tr id="logHeader"></tr></thead>
+  <tbody></tbody>
+</table>
 
-  <h2>Call-Out Order</h2>
-  <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
-  <div class="order-strip" id="orderStrip"></div>
+<h2>Roster Grid</h2>
+<table id="rosterTable">
+  <thead><tr id="rosterHeader"></tr></thead>
+  <tbody></tbody>
+</table>
 
-  <h2>Auction Log</h2>
-  <table id="logTable">
-    <thead><tr id="logHeader"></tr></thead>
-    <tbody></tbody>
-  </table>
-
-  <h2 style="margin-top:24px;">Team Max / $ Out</h2>
-  <table id="maxOutTable">
-    <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
-    <tbody></tbody>
-  </table>
-
-</div>
-
-<div id="rostersTab" style="display:none;">
-
-  <h2 style="margin-top:0;">Roster Grid</h2>
-  <table id="rosterTable">
-    <thead><tr id="rosterHeader"></tr></thead>
-    <tbody></tbody>
-  </table>
-
-</div>
+<h2 style="margin-top:24px;">Team Max / $ Out</h2>
+<table id="maxOutTable">
+  <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
+  <tbody></tbody>
+</table>
 
 <script>
-function showTab(tab) {
-  document.getElementById('auctionTab').style.display = tab === 'auction' ? '' : 'none';
-  document.getElementById('rostersTab').style.display = tab === 'rosters' ? '' : 'none';
-  document.getElementById('tabAuctionBtn').classList.toggle('active', tab === 'auction');
-  document.getElementById('tabRostersBtn').classList.toggle('active', tab === 'rosters');
-}
-
 const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
 const rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
 const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
@@ -261,22 +197,27 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
   "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
   "B (TE)","B (DEF)"];
 
-// Keeper submission status ? teams turn green here once their keepers are in.
-// rosterOwners is already alphabetical, so it's reused for this list.
-const keepersIn = ["Jeremy"];
-
-const keeperStripEl = document.getElementById('keeperStrip');
-rosterOwners.forEach(name => {
-  const span = document.createElement('span');
-  span.className = 'keeper-pill' + (keepersIn.includes(name) ? ' in' : '');
-  span.textContent = name;
-  keeperStripEl.appendChild(span);
-});
-
-// Auction log data
+// Auction log data (test scenario)
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
-const picks = [];
+const picks = [
+  {
+    callout: "Chad",
+    player: "Jeremiyah Love",
+    pos: "RB",
+    team: "ARI",
+    draft: true,
+    winner: "Chad",
+    amount: 9
+  },
+  {
+    callout: "Tarry",
+    player: "Joe Burrow",
+    pos: "QB",
+    team: "CIN",
+    bids: { Tarry: 10, Aric: 9, Jeremy: "out", Powers: "out" }
+  }
+];
 const resolvedCount = picks.filter(p => p.winner).length;
 const nextIndex = resolvedCount % bidOrder.length; // whose call-out is current/next
 
@@ -285,7 +226,7 @@ const stripEl = document.getElementById('orderStrip');
 bidOrder.forEach((name, i) => {
   const span = document.createElement('span');
   span.className = 'order-pill' + (i === nextIndex ? ' next' : '');
-  span.textContent = (i === nextIndex ? '\u25B6 ' : '') + name;
+  span.textContent = (i === nextIndex ? '▶ ' : '') + name;
   stripEl.appendChild(span);
 });
 
@@ -325,7 +266,7 @@ picks.forEach(p => {
       } else if (v === 'out') {
         cells += `<td class="folded">out</td>`;
       } else {
-        cells += `<td class="empty">\u2014</td>`;
+        cells += `<td class="empty">—</td>`;
       }
     });
   }
@@ -338,11 +279,11 @@ picks.forEach(p => {
 const maxOutBody = document.querySelector('#maxOutTable tbody');
 rosterOwners.forEach(name => {
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td class="empty">\u2014</td><td class="empty">\u2014</td>`;
+  tr.innerHTML = `<td>${name}</td><td class="empty">—</td><td class="empty">—</td>`;
   maxOutBody.appendChild(tr);
 });
 
-// Roster grid ? won players get slotted into the first open matching spot
+// Roster grid — won players get slotted into the first open matching spot
 // (starting slot first, then bench) for their winning owner.
 const rosterAssignments = {};
 rosterOwners.forEach(o => { rosterAssignments[o] = new Array(positions.length).fill(null); });
@@ -371,7 +312,7 @@ positions.forEach((pos, posIdx) => {
   const tr = document.createElement('tr');
   tr.innerHTML = `<td>${pos}</td>` + rosterOwners.map(owner => {
     const player = rosterAssignments[owner][posIdx];
-    return player ? `<td class="filled">${player}</td>` : '<td class="empty">\u2014</td>';
+    return player ? `<td class="filled">${player}</td>` : '<td class="empty">—</td>';
   }).join('');
   rosterBody.appendChild(tr);
 });
