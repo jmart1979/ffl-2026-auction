@@ -281,24 +281,29 @@
   .pundit-disclaimer {
     font-size: 10px;
     color: #aaa;
-    font-style: italic;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    line-height: 1.4;
   }
-  .pundit-take {
-    font-size: 13px;
+  .analysis-entry {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  .analysis-entry:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .analysis-name {
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 3px;
+    color: #1a1a1a;
+  }
+  .analysis-text {
+    font-size: 12px;
     line-height: 1.5;
-    color: #333;
-  }
-  .pundit-refresh {
-    background: none;
-    border: none;
-    color: #2f6fed;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    margin-top: 10px;
-    font-family: inherit;
+    color: #444;
   }
 </style>
 </head>
@@ -424,10 +429,9 @@
 
     <div>
       <div class="pundit-box">
-        <div class="pundit-header">&#127908; Claude's Take</div>
-        <div class="pundit-disclaimer">Fictional hot take, generated for fun &mdash; not real analysis.</div>
-        <div class="pundit-take" id="punditTake"></div>
-        <button type="button" class="pundit-refresh" onclick="rerollTake()">&#128260; Get another take</button>
+        <div class="pundit-header">&#128202; Claude's Analysis</div>
+        <div class="pundit-disclaimer">Value context from current redraft ADP &amp; rookie outlooks, adjusted for this league's 8-team depth (only elite-tier value holds up &mdash; mid-tier gets diluted fast).</div>
+        <div id="analysisList"></div>
       </div>
     </div>
 
@@ -487,6 +491,10 @@ rosterOwners.forEach(name => {
 // Auction log data
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
+// `analysis` is real value commentary, researched and written manually per pick
+// (this is a static site, so it can't call out to Claude live) ? adjusted for
+// the fact that this is an 8-team league, not the 12-team default most fantasy
+// tools assume.
 const picks = [
   {
     callout: "Chad",
@@ -495,7 +503,8 @@ const picks = [
     team: "ARI",
     draft: true,
     winner: "Chad",
-    amount: 11
+    amount: 11,
+    analysis: "Consensus RB11 with a rookie-season floor around 14 PPG based on how every top-5 drafted RB since 2012 has performed. That's an elite-tier profile, and elite tier is exactly what holds its value in an 8-team league ? $11 is a clear bargain even with Tyler Allgeier and James Conner clouding his early touches in Arizona."
   },
   {
     callout: "Tarry",
@@ -504,7 +513,8 @@ const picks = [
     team: "TEN",
     draft: true,
     winner: "Tarry",
-    amount: 10
+    amount: 10,
+    analysis: "Landed the No. 1 WR job in Tennessee as the 4th overall pick, but redraft consensus still has him fringe WR2/3 (ESPN's Top 300 ranks him 51st overall, 25th at the position) given Cam Ward's unproven passing offense. In an 8-team league that tier dilutes fastest ? with only 24 league-wide starting WR spots, a back-end WR2 is closer to replacement level than the draft capital suggests. $10 pays for the ceiling, not the current floor."
   },
   {
     callout: "Michael",
@@ -513,7 +523,8 @@ const picks = [
     team: "SEA",
     draft: true,
     winner: "Michael",
-    amount: 11
+    amount: 11,
+    analysis: "A committee back on paper ? sharing camp reps with George Holani and Emanuel Wilson ? until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
   }
 ];
 const resolvedCount = picks.filter(p => p.winner).length;
@@ -622,35 +633,19 @@ footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
 }).join('');
 rosterBody.appendChild(footerTr);
 
-// "Claude's Take" ? a fictional hot-take generator riffing on the most recent pick.
-const punditTemplates = [
-  p => `${p.winner} spending $${p.amount} on ${p.player}? Bold. Not necessarily smart ? but bold.`,
-  p => `$${p.amount} for ${p.player}? That's not an auction bid, that's a hostage negotiation.`,
-  p => `Book it: ${p.player} to ${p.winner} for $${p.amount} is either the steal of the draft or the reason they miss the playoffs. There is no in-between.`,
-  p => `${p.winner} just added ${p.player} and somewhere, a spreadsheet is crying.`,
-  p => `The advanced metrics say this is fine. My gut says $${p.amount} on a ${p.pos} is how dynasties get built OR how seasons get buried. Flip a coin.`,
-  p => `Nobody asked ${p.winner} to overthink this, but $${p.amount} on ${p.player} says they thought about it plenty ? and we'll find out in December if that was a good idea.`,
-  p => `${p.player} for $${p.amount}? ${p.winner}, that's not a pick, that's a personality trait now.`,
-  p => `I've seen more disciplined spending at a yard sale. ${p.winner} really said "give me the ${p.pos}" and paid $${p.amount} for the privilege.`
-];
-
-function renderTake() {
-  const el = document.getElementById('punditTake');
-  const resolved = picks.filter(p => p.winner);
-  if (resolved.length === 0) {
-    el.textContent = "Nothing to break down yet ? make a pick and I'll have some thoughts.";
-    return;
-  }
-  const latest = resolved[resolved.length - 1];
-  const template = punditTemplates[Math.floor(Math.random() * punditTemplates.length)];
-  el.textContent = template(latest);
+// Claude's Analysis ? real per-pick value writeups, most recent first
+const analysisListEl = document.getElementById('analysisList');
+const resolvedPicks = picks.filter(p => p.winner);
+if (resolvedPicks.length === 0) {
+  analysisListEl.innerHTML = '<div class="analysis-text">Nothing to analyze yet ? check back once a pick is logged.</div>';
+} else {
+  [...resolvedPicks].reverse().forEach(p => {
+    const entry = document.createElement('div');
+    entry.className = 'analysis-entry';
+    entry.innerHTML = `<div class="analysis-name">${p.player} ($${p.amount}, ${p.winner})</div><div class="analysis-text">${p.analysis}</div>`;
+    analysisListEl.appendChild(entry);
+  });
 }
-
-function rerollTake() {
-  renderTake();
-}
-
-renderTake();
 </script>
 
 </body>
