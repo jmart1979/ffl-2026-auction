@@ -250,6 +250,56 @@
   td.outbid { font-weight: 400; color: #bbb; }
   td.folded { color: #bbb; }
   td.filled { font-weight: 600; background: #f3f8ff; color: #1a1a1a; }
+
+  .tab-two-col {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .tab-two-col { grid-template-columns: 1fr; }
+  }
+  .pundit-box {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 30px;
+  }
+  .pundit-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: #2f6fed;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .pundit-disclaimer {
+    font-size: 10px;
+    color: #aaa;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .pundit-take {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #333;
+  }
+  .pundit-refresh {
+    background: none;
+    border: none;
+    color: #2f6fed;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 10px;
+    font-family: inherit;
+  }
 </style>
 </head>
 <body>
@@ -360,13 +410,28 @@
 
 <div id="auctionTab">
 
-  <h2 style="margin-top:0;">Keepers</h2>
-  <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
-  <div class="keeper-strip" id="keeperStrip"></div>
+  <div class="tab-two-col">
 
-  <h2>Call-Out Order</h2>
-  <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
-  <div class="order-strip" id="orderStrip"></div>
+    <div>
+      <h2 style="margin-top:0;">Keepers</h2>
+      <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
+      <div class="keeper-strip" id="keeperStrip"></div>
+
+      <h2>Call-Out Order</h2>
+      <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
+      <div class="order-strip" id="orderStrip"></div>
+    </div>
+
+    <div>
+      <div class="pundit-box">
+        <div class="pundit-header">&#127908; Claude's Take</div>
+        <div class="pundit-disclaimer">Fictional hot take, generated for fun &mdash; not real analysis.</div>
+        <div class="pundit-take" id="punditTake"></div>
+        <button type="button" class="pundit-refresh" onclick="rerollTake()">&#128260; Get another take</button>
+      </div>
+    </div>
+
+  </div>
 
   <h2>Auction Log</h2>
   <table id="logTable">
@@ -556,6 +621,36 @@ footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
   return `<td>${count}</td>`;
 }).join('');
 rosterBody.appendChild(footerTr);
+
+// "Claude's Take" ? a fictional hot-take generator riffing on the most recent pick.
+const punditTemplates = [
+  p => `${p.winner} spending $${p.amount} on ${p.player}? Bold. Not necessarily smart ? but bold.`,
+  p => `$${p.amount} for ${p.player}? That's not an auction bid, that's a hostage negotiation.`,
+  p => `Book it: ${p.player} to ${p.winner} for $${p.amount} is either the steal of the draft or the reason they miss the playoffs. There is no in-between.`,
+  p => `${p.winner} just added ${p.player} and somewhere, a spreadsheet is crying.`,
+  p => `The advanced metrics say this is fine. My gut says $${p.amount} on a ${p.pos} is how dynasties get built OR how seasons get buried. Flip a coin.`,
+  p => `Nobody asked ${p.winner} to overthink this, but $${p.amount} on ${p.player} says they thought about it plenty ? and we'll find out in December if that was a good idea.`,
+  p => `${p.player} for $${p.amount}? ${p.winner}, that's not a pick, that's a personality trait now.`,
+  p => `I've seen more disciplined spending at a yard sale. ${p.winner} really said "give me the ${p.pos}" and paid $${p.amount} for the privilege.`
+];
+
+function renderTake() {
+  const el = document.getElementById('punditTake');
+  const resolved = picks.filter(p => p.winner);
+  if (resolved.length === 0) {
+    el.textContent = "Nothing to break down yet ? make a pick and I'll have some thoughts.";
+    return;
+  }
+  const latest = resolved[resolved.length - 1];
+  const template = punditTemplates[Math.floor(Math.random() * punditTemplates.length)];
+  el.textContent = template(latest);
+}
+
+function rerollTake() {
+  renderTake();
+}
+
+renderTake();
 </script>
 
 </body>
