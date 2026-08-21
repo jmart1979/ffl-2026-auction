@@ -409,7 +409,7 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
 
 // Keeper submission status ? teams turn green here once their keepers are in.
 // rosterOwners is already alphabetical, so it's reused for this list.
-const keepersIn = ["Jeremy", "Aric", "Powers"];
+const keepersIn = ["Aric", "Chad", "Jeremy", "Michael", "Powers", "Scottie", "Tarry"];
 
 const keeperStripEl = document.getElementById('keeperStrip');
 rosterOwners.forEach(name => {
@@ -422,7 +422,17 @@ rosterOwners.forEach(name => {
 // Auction log data
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
-const picks = [];
+const picks = [
+  {
+    callout: "Chad",
+    player: "Jeremiyah Love",
+    pos: "RB",
+    team: "ARI",
+    draft: true,
+    winner: "Chad",
+    amount: 11
+  }
+];
 const resolvedCount = picks.filter(p => p.winner).length;
 const nextIndex = resolvedCount % bidOrder.length; // whose call-out is current/next
 
