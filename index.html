@@ -251,60 +251,27 @@
   td.folded { color: #bbb; }
   td.filled { font-weight: 600; background: #f3f8ff; color: #1a1a1a; }
 
-  .tab-two-col {
-    display: grid;
-    grid-template-columns: 1fr 280px;
-    gap: 20px;
-    align-items: start;
-  }
-  @media (max-width: 800px) {
-    .tab-two-col { grid-template-columns: 1fr; }
-  }
-  .pundit-box {
-    background: #fff;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    padding: 14px;
-    margin-top: 30px;
-  }
-  .pundit-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 0.5px;
+  .analysis-btn {
+    background: none;
+    border: none;
     color: #2f6fed;
-    text-transform: uppercase;
-    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 6px;
+    font-family: inherit;
+    white-space: nowrap;
   }
-  .pundit-disclaimer {
-    font-size: 10px;
-    color: #aaa;
-    margin-bottom: 12px;
-    line-height: 1.4;
-  }
-  .analysis-entry {
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #eee;
-  }
-  .analysis-entry:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-  }
-  .analysis-name {
-    font-weight: 700;
-    font-size: 12px;
-    margin-bottom: 3px;
-    color: #1a1a1a;
-  }
-  .analysis-text {
+  tr.analysis-row td {
+    text-align: left;
+    background: #f5f8ff;
     font-size: 12px;
     line-height: 1.5;
     color: #444;
+    padding: 10px 14px;
   }
+  tr.analysis-row.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -415,29 +382,16 @@
 
 <div id="auctionTab">
 
-  <div class="tab-two-col">
+  <h2 style="margin-top:0;">Keepers</h2>
+  <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
+  <div class="keeper-strip" id="keeperStrip"></div>
 
-    <div>
-      <h2 style="margin-top:0;">Keepers</h2>
-      <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
-      <div class="keeper-strip" id="keeperStrip"></div>
-
-      <h2>Call-Out Order</h2>
-      <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
-      <div class="order-strip" id="orderStrip"></div>
-    </div>
-
-    <div>
-      <div class="pundit-box">
-        <div class="pundit-header">&#128202; Claude's Analysis</div>
-        <div class="pundit-disclaimer">Value context from current redraft ADP &amp; rookie outlooks, adjusted for this league's 8-team depth (only elite-tier value holds up &mdash; mid-tier gets diluted fast).</div>
-        <div id="analysisList"></div>
-      </div>
-    </div>
-
-  </div>
+  <h2>Call-Out Order</h2>
+  <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
+  <div class="order-strip" id="orderStrip"></div>
 
   <h2>Auction Log</h2>
+  <div class="order-note">Tap &ldquo;Analysis&rdquo; next to a player for real value context, adjusted for this 8-team league.</div>
   <table id="logTable">
     <thead><tr id="logHeader"></tr></thead>
     <tbody></tbody>
@@ -469,6 +423,14 @@ function showTab(tab) {
   document.getElementById('tabRostersBtn').classList.toggle('active', tab === 'rosters');
 }
 
+function toggleAnalysis(idx) {
+  const row = document.getElementById('analysis-row-' + idx);
+  const btn = document.getElementById('analysis-btn-' + idx);
+  if (!row) return;
+  const isHidden = row.classList.toggle('hidden');
+  if (btn) btn.textContent = isHidden ? 'Analysis \u25BE' : 'Hide analysis \u25B4';
+}
+
 const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
 const rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
 const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
@@ -494,7 +456,7 @@ rosterOwners.forEach(name => {
 // `analysis` is real value commentary, researched and written manually per pick
 // (this is a static site, so it can't call out to Claude live) ? adjusted for
 // the fact that this is an 8-team league, not the 12-team default most fantasy
-// tools assume.
+// tools assume. Tap "Analysis" next to a player's name in the log to see it.
 const picks = [
   {
     callout: "Chad",
@@ -540,12 +502,16 @@ bidOrder.forEach((name, i) => {
 });
 
 // Auction log table
+const totalCols = 4 + bidOrder.length;
 const logHeader = document.getElementById('logHeader');
 logHeader.innerHTML = ['Call Out','Player','Pos','Team', ...bidOrder].map(h => `<th>${h}</th>`).join('');
 const logBody = document.querySelector('#logTable tbody');
-picks.forEach(p => {
+picks.forEach((p, idx) => {
   const tr = document.createElement('tr');
-  let cells = `<td>${p.callout}</td><td>${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}</td><td>${p.pos}</td><td>${p.team}</td>`;
+  const analysisBtn = p.analysis
+    ? `<button type="button" class="analysis-btn" id="analysis-btn-${idx}" onclick="toggleAnalysis(${idx})">Analysis \u25BE</button>`
+    : '';
+  let cells = `<td>${p.callout}</td><td>${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}${analysisBtn}</td><td>${p.pos}</td><td>${p.team}</td>`;
 
   if (p.winner) {
     // Resolved pick: winner shows green, everyone else shows "out"
@@ -582,6 +548,17 @@ picks.forEach(p => {
 
   tr.innerHTML = cells;
   logBody.appendChild(tr);
+
+  if (p.analysis) {
+    const analysisTr = document.createElement('tr');
+    analysisTr.className = 'analysis-row hidden';
+    analysisTr.id = 'analysis-row-' + idx;
+    const td = document.createElement('td');
+    td.colSpan = totalCols;
+    td.textContent = p.analysis;
+    analysisTr.appendChild(td);
+    logBody.appendChild(analysisTr);
+  }
 });
 
 // Team Max / $ Out table
@@ -632,20 +609,6 @@ footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
   return `<td>${count}</td>`;
 }).join('');
 rosterBody.appendChild(footerTr);
-
-// Claude's Analysis ? real per-pick value writeups, most recent first
-const analysisListEl = document.getElementById('analysisList');
-const resolvedPicks = picks.filter(p => p.winner);
-if (resolvedPicks.length === 0) {
-  analysisListEl.innerHTML = '<div class="analysis-text">Nothing to analyze yet ? check back once a pick is logged.</div>';
-} else {
-  [...resolvedPicks].reverse().forEach(p => {
-    const entry = document.createElement('div');
-    entry.className = 'analysis-entry';
-    entry.innerHTML = `<div class="analysis-name">${p.player} ($${p.amount}, ${p.winner})</div><div class="analysis-text">${p.analysis}</div>`;
-    analysisListEl.appendChild(entry);
-  });
-}
 </script>
 
 </body>
