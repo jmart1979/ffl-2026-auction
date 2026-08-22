@@ -272,6 +272,62 @@
     padding: 10px 14px;
   }
   tr.analysis-row.hidden { display: none; }
+
+  .tab-two-col {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .tab-two-col { grid-template-columns: 1fr; }
+  }
+  .side-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 30px;
+  }
+  .side-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: #2f6fed;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .side-card-note {
+    font-size: 10px;
+    color: #aaa;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .avail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+  }
+  .avail-rank {
+    flex: 0 0 16px;
+    color: #999;
+    font-weight: 700;
+  }
+  .avail-name {
+    flex: 1;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .avail-meta {
+    flex: 0 0 auto;
+    color: #999;
+    font-size: 11px;
+  }
 </style>
 </head>
 <body>
@@ -382,13 +438,27 @@
 
 <div id="auctionTab">
 
-  <h2 style="margin-top:0;">Keepers</h2>
-  <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
-  <div class="keeper-strip" id="keeperStrip"></div>
+  <div class="tab-two-col">
 
-  <h2>Call-Out Order</h2>
-  <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
-  <div class="order-strip" id="orderStrip"></div>
+    <div>
+      <h2 style="margin-top:0;">Keepers</h2>
+      <div class="order-note">Due August 21 &mdash; bubble turns green once a team's keepers are submitted:</div>
+      <div class="keeper-strip" id="keeperStrip"></div>
+
+      <h2>Call-Out Order</h2>
+      <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
+      <div class="order-strip" id="orderStrip"></div>
+    </div>
+
+    <div>
+      <div class="side-card">
+        <div class="side-card-header">&#127919; Top 10 Available</div>
+        <div class="side-card-note">Best players not yet kept or drafted, per consensus PPR rankings (Aug 21, 2026). Updated manually &mdash; will need refreshing as the auction progresses.</div>
+        <div id="availList"></div>
+      </div>
+    </div>
+
+  </div>
 
   <h2>Auction Log</h2>
   <div class="order-note">Tap &ldquo;Analysis&rdquo; next to a player for real value context, adjusted for this 8-team league.</div>
@@ -402,6 +472,7 @@
 <div id="rostersTab" style="display:none;">
 
   <h2 style="margin-top:0;">Team Max / $ Out</h2>
+  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total).</div>
   <table id="maxOutTable">
     <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
     <tbody></tbody>
@@ -440,7 +511,7 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
 
 // Keeper submission status ? teams turn green here once their keepers are in.
 // rosterOwners is already alphabetical, so it's reused for this list.
-const keepersIn = ["Aric", "Chad", "Jeremy", "Michael", "Powers", "Scottie", "Tarry"];
+const keepersIn = ["Aric", "Chad", "Elian", "Jeremy", "Michael", "Powers", "Scottie", "Tarry"];
 
 const keeperStripEl = document.getElementById('keeperStrip');
 rosterOwners.forEach(name => {
@@ -450,13 +521,67 @@ rosterOwners.forEach(name => {
   keeperStripEl.appendChild(span);
 });
 
+// Keeper data, from the submitted 2026 keeper sheet. Order within each team
+// matters where a position has more keepers than starting slots ? the first
+// N (by our own value read) get the starting spot, the rest land on the bench.
+// Only Aric's WR group is actually squeezed (4 kept, 3 starting WR spots);
+// everyone else's keepers fit their starting slots exactly or with room to spare.
+const keepersData = {
+  Aric: [
+    { pos: "WR", player: "Puka Nacua", salary: 47 },
+    { pos: "WR", player: "Drake London", salary: 22 },
+    { pos: "WR", player: "Rashee Rice", salary: 18 },
+    { pos: "WR", player: "Tee Higgins", salary: 12 },
+    { pos: "RB", player: "James Cook", salary: 30 },
+    { pos: "RB", player: "Omarion Hampton", salary: 16 },
+    { pos: "TE", player: "Trey McBride", salary: 16 }
+  ],
+  Chad: [
+    { pos: "QB", player: "Lamar Jackson", salary: 15 },
+    { pos: "RB", player: "Jonathan Taylor", salary: 28 },
+    { pos: "TE", player: "Tyler Warren", salary: 15 }
+  ],
+  Elian: [
+    { pos: "TE", player: "Brock Bowers", salary: 21 },
+    { pos: "WR", player: "DeVonta Smith", salary: 15 },
+    { pos: "RB", player: "Javonte Williams", salary: 11 }
+  ],
+  Jeremy: [
+    { pos: "WR", player: "Ja'Marr Chase", salary: 74 },
+    { pos: "WR", player: "Amon-Ra St. Brown", salary: 24 },
+    { pos: "WR", player: "George Pickens", salary: 12 },
+    { pos: "RB", player: "Josh Jacobs", salary: 15 }
+  ],
+  Michael: [
+    { pos: "WR", player: "CeeDee Lamb", salary: 39 },
+    { pos: "WR", player: "Tetairoa McMillan", salary: 17 }
+  ],
+  Powers: [
+    { pos: "RB", player: "Jahmyr Gibbs", salary: 58 },
+    { pos: "WR", player: "Jaxon Smith-Njigba", salary: 18 }
+  ],
+  Scottie: [
+    { pos: "RB", player: "Bijan Robinson", salary: 58 },
+    { pos: "QB", player: "Josh Allen", salary: 25 },
+    { pos: "WR", player: "Emeka Egbuka", salary: 15 },
+    { pos: "WR", player: "Zay Flowers", salary: 13 },
+    { pos: "RB", player: "David Montgomery", salary: 11 }
+  ],
+  Tarry: [
+    { pos: "RB", player: "Ashton Jeanty", salary: 16 },
+    { pos: "WR", player: "Chris Olave", salary: 12 }
+  ]
+};
+
 // Auction log data
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
-// `analysis` is real value commentary, researched and written manually per pick
-// (this is a static site, so it can't call out to Claude live) ? adjusted for
-// the fact that this is an 8-team league, not the 12-team default most fantasy
-// tools assume. Tap "Analysis" next to a player's name in the log to see it.
+// `draft: true` marks rookie-draft picks (only the 4 non-playoff teams
+// participate) ? these don't count toward the regular call-out rotation.
+// `analysis` is real value commentary, researched and written manually per
+// pick (this is a static site, so it can't call out to Claude live) ? adjusted
+// for the fact that this is an 8-team league, not the 12-team default most
+// fantasy tools assume. Tap "Analysis" next to a player's name to see it.
 const picks = [
   {
     callout: "Chad",
@@ -487,12 +612,23 @@ const picks = [
     winner: "Michael",
     amount: 11,
     analysis: "A committee back on paper ? sharing camp reps with George Holani and Emanuel Wilson ? until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
+  },
+  {
+    callout: "Elian",
+    player: "Passed",
+    pos: "\u2014",
+    team: "\u2014",
+    draft: true,
+    passed: true
   }
 ];
-const resolvedCount = picks.filter(p => p.winner).length;
-const nextIndex = resolvedCount % bidOrder.length; // whose call-out is current/next
 
-// Call-out order strip
+// Call-out order strip ? the rookie draft (4 non-playoff teams) is done, so
+// the regular auction rotation starts fresh at the top of bidOrder. Only
+// non-draft picks count toward this rotation going forward.
+const auctionOnlyResolved = picks.filter(p => p.winner && !p.draft).length;
+const nextIndex = auctionOnlyResolved % bidOrder.length;
+
 const stripEl = document.getElementById('orderStrip');
 bidOrder.forEach((name, i) => {
   const span = document.createElement('span');
@@ -511,10 +647,12 @@ picks.forEach((p, idx) => {
   const analysisBtn = p.analysis
     ? `<button type="button" class="analysis-btn" id="analysis-btn-${idx}" onclick="toggleAnalysis(${idx})">Analysis \u25BE</button>`
     : '';
-  let cells = `<td>${p.callout}</td><td>${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}${analysisBtn}</td><td>${p.pos}</td><td>${p.team}</td>`;
+  const playerCell = p.passed
+    ? `<em style="color:#999;">Passed</em>`
+    : `${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}${analysisBtn}`;
+  let cells = `<td>${p.callout}</td><td>${playerCell}</td><td>${p.pos}</td><td>${p.team}</td>`;
 
   if (p.winner) {
-    // Resolved pick: winner shows green, everyone else shows "out"
     bidOrder.forEach(owner => {
       if (owner === p.winner) {
         cells += `<td class="winner">$${p.amount}</td>`;
@@ -523,11 +661,6 @@ picks.forEach((p, idx) => {
       }
     });
   } else {
-    // Bidding still in progress:
-    //  - current high bid: bold black
-    //  - bids that have been surpassed: light gray (still shows their amount)
-    //  - folded owners: light gray "out"
-    //  - owners who haven't acted yet: blank dash
     const bids = p.bids || {};
     const highBidder = Object.entries(bids)
       .filter(([, v]) => typeof v === 'number')
@@ -561,16 +694,34 @@ picks.forEach((p, idx) => {
   }
 });
 
+// Team stats: $ spent and Max Bid, computed from keepers + resolved picks.
+// Max Bid = $200 cap, minus $ already committed, minus $1 reserved for every
+// OTHER still-open roster spot (15 total spots per team).
+function teamStats(owner) {
+  const keeperList = keepersData[owner] || [];
+  const keeperSpend = keeperList.reduce((s, k) => s + k.salary, 0);
+  const keeperCount = keeperList.length;
+  const wonPicks = picks.filter(p => p.winner === owner);
+  const pickSpend = wonPicks.reduce((s, p) => s + p.amount, 0);
+  const pickCount = wonPicks.length;
+  const spent = keeperSpend + pickSpend;
+  const filled = keeperCount + pickCount;
+  const maxBid = 186 - spent + filled; // 200 - spent - (14 - filled)
+  return { spent, filled, maxBid };
+}
+
 // Team Max / $ Out table
 const maxOutBody = document.querySelector('#maxOutTable tbody');
 rosterOwners.forEach(name => {
+  const s = teamStats(name);
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td class="empty">\u2014</td><td class="empty">\u2014</td>`;
+  tr.innerHTML = `<td>${name}</td><td>$${s.maxBid}</td><td>$${s.spent}</td>`;
   maxOutBody.appendChild(tr);
 });
 
-// Roster grid ? won players get slotted into the first open matching spot
-// (starting slot first, then bench) for their winning owner.
+// Roster grid ? keepers are slotted first (in the order listed above, so the
+// best players at a crowded position land in the starting slots and the rest
+// go to the bench), then resolved rookie-draft/auction picks fill in after.
 const rosterAssignments = {};
 rosterOwners.forEach(o => { rosterAssignments[o] = new Array(positions.length).fill(null); });
 
@@ -584,6 +735,13 @@ function findOpenSlot(owner, pos) {
   }
   return -1;
 }
+
+rosterOwners.forEach(owner => {
+  (keepersData[owner] || []).forEach(k => {
+    const slot = findOpenSlot(owner, k.pos);
+    if (slot !== -1) rosterAssignments[owner][slot] = k.player;
+  });
+});
 
 picks.forEach(p => {
   if (!p.winner) return; // only resolved picks land on the roster
@@ -609,6 +767,39 @@ footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
   return `<td>${count}</td>`;
 }).join('');
 rosterBody.appendChild(footerTr);
+
+// Top 10 Available ? best players by current consensus PPR rank, filtered
+// against everyone's keepers and rookie-draft picks. Static snapshot; needs
+// a manual refresh as the auction eats into the pool.
+const rosteredPlayers = new Set();
+rosterOwners.forEach(owner => {
+  (keepersData[owner] || []).forEach(k => rosteredPlayers.add(k.player));
+});
+picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
+
+const top10Pool = [
+  { player: "Christian McCaffrey", pos: "RB", team: "SF" },
+  { player: "De'Von Achane", pos: "RB", team: "MIA" },
+  { player: "Derrick Henry", pos: "RB", team: "BAL" },
+  { player: "Justin Jefferson", pos: "WR", team: "MIN" },
+  { player: "Chase Brown", pos: "RB", team: "CIN" },
+  { player: "Kenneth Walker III", pos: "RB", team: "KC" },
+  { player: "Saquon Barkley", pos: "RB", team: "PHI" },
+  { player: "Malik Nabers", pos: "WR", team: "NYG" },
+  { player: "A.J. Brown", pos: "WR", team: "NE" },
+  { player: "Breece Hall", pos: "RB", team: "NYJ" }
+];
+
+const availListEl = document.getElementById('availList');
+top10Pool
+  .filter(p => !rosteredPlayers.has(p.player))
+  .slice(0, 10)
+  .forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'avail-row';
+    row.innerHTML = `<div class="avail-rank">${i + 1}.</div><div class="avail-name">${p.player}</div><div class="avail-meta">${p.pos} &middot; ${p.team}</div>`;
+    availListEl.appendChild(row);
+  });
 </script>
 
 </body>
