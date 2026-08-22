@@ -628,6 +628,13 @@ const picks = [
     team: "\u2014",
     draft: true,
     passed: true
+  },
+  {
+    callout: "Chad",
+    player: "Christian McCaffrey",
+    pos: "RB",
+    team: "SF",
+    bids: { Chad: "out", Jeremy: "out", Elian: 30, Aric: "out", Michael: 48 }
   }
 ];
 
@@ -656,7 +663,7 @@ picks.forEach((p, idx) => {
     ? `<button type="button" class="analysis-btn" id="analysis-btn-${idx}" onclick="toggleAnalysis(${idx})">Analysis \u25BE</button>`
     : '';
   const playerCell = p.passed
-    ? `<em style="color:#999;">Passed</em>`
+    ? `<em style="color:#999;">Passed</em>${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}`
     : `${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}${analysisBtn}`;
   let cells = `<td>${p.callout}</td><td>${playerCell}</td><td>${p.pos}</td><td>${p.team}</td>`;
 
