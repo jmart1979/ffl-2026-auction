@@ -472,9 +472,9 @@
 <div id="rostersTab" style="display:none;">
 
   <h2 style="margin-top:0;">Team Max / $ Out</h2>
-  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total).</div>
+  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total). Out = positions a team has said they're done bidding on for the rest of the auction.</div>
   <table id="maxOutTable">
-    <thead><tr><th>Team</th><th>Max Bid</th><th>$ Out</th></tr></thead>
+    <thead><tr><th>Team</th><th>Max Bid</th><th>Out</th></tr></thead>
     <tbody></tbody>
   </table>
 
@@ -571,6 +571,14 @@ const keepersData = {
     { pos: "RB", player: "Ashton Jeanty", salary: 16 },
     { pos: "WR", player: "Chris Olave", salary: 12 }
   ]
+};
+
+// Positions each team has said they're done bidding on ? this speeds the
+// auction along ("I'm out on RB", etc.) and has nothing to do with dollars.
+// Manually maintained; empty for everyone until someone declares out.
+const outPositions = {
+  Aric: [], Chad: [], Elian: [], Jeremy: [],
+  Michael: [], Powers: [], Scottie: [], Tarry: []
 };
 
 // Auction log data
@@ -714,8 +722,10 @@ function teamStats(owner) {
 const maxOutBody = document.querySelector('#maxOutTable tbody');
 rosterOwners.forEach(name => {
   const s = teamStats(name);
+  const out = outPositions[name] || [];
+  const outText = out.length ? out.join(', ') : '\u2014';
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td>$${s.maxBid}</td><td>$${s.spent}</td>`;
+  tr.innerHTML = `<td>${name}</td><td>$${s.maxBid}</td><td>${outText}</td>`;
   maxOutBody.appendChild(tr);
 });
 
@@ -739,14 +749,14 @@ function findOpenSlot(owner, pos) {
 rosterOwners.forEach(owner => {
   (keepersData[owner] || []).forEach(k => {
     const slot = findOpenSlot(owner, k.pos);
-    if (slot !== -1) rosterAssignments[owner][slot] = k.player;
+    if (slot !== -1) rosterAssignments[owner][slot] = `${k.player} ($${k.salary})`;
   });
 });
 
 picks.forEach(p => {
   if (!p.winner) return; // only resolved picks land on the roster
   const slot = findOpenSlot(p.winner, p.pos);
-  if (slot !== -1) rosterAssignments[p.winner][slot] = p.player;
+  if (slot !== -1) rosterAssignments[p.winner][slot] = `${p.player} ($${p.amount})`;
 });
 
 const rosterHeader = document.getElementById('rosterHeader');
