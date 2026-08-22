@@ -509,7 +509,7 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
   "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
   "B (TE)","B (DEF)"];
 
-// Keeper submission status ? teams turn green here once their keepers are in.
+// Keeper submission status — teams turn green here once their keepers are in.
 // rosterOwners is already alphabetical, so it's reused for this list.
 const keepersIn = ["Aric", "Chad", "Elian", "Jeremy", "Michael", "Powers", "Scottie", "Tarry"];
 
@@ -522,7 +522,7 @@ rosterOwners.forEach(name => {
 });
 
 // Keeper data, from the submitted 2026 keeper sheet. Order within each team
-// matters where a position has more keepers than starting slots ? the first
+// matters where a position has more keepers than starting slots — the first
 // N (by our own value read) get the starting spot, the rest land on the bench.
 // Only Aric's WR group is actually squeezed (4 kept, 3 starting WR spots);
 // everyone else's keepers fit their starting slots exactly or with room to spare.
@@ -573,7 +573,7 @@ const keepersData = {
   ]
 };
 
-// Positions each team has said they're done bidding on ? this speeds the
+// Positions each team has said they're done bidding on — this speeds the
 // auction along ("I'm out on RB", etc.) and has nothing to do with dollars.
 // Manually maintained; empty for everyone until someone declares out.
 const outPositions = {
@@ -585,9 +585,9 @@ const outPositions = {
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
 // `draft: true` marks rookie-draft picks (only the 4 non-playoff teams
-// participate) ? these don't count toward the regular call-out rotation.
+// participate) — these don't count toward the regular call-out rotation.
 // `analysis` is real value commentary, researched and written manually per
-// pick (this is a static site, so it can't call out to Claude live) ? adjusted
+// pick (this is a static site, so it can't call out to Claude live) — adjusted
 // for the fact that this is an 8-team league, not the 12-team default most
 // fantasy tools assume. Tap "Analysis" next to a player's name to see it.
 const picks = [
@@ -599,7 +599,7 @@ const picks = [
     draft: true,
     winner: "Chad",
     amount: 11,
-    analysis: "Consensus RB11 with a rookie-season floor around 14 PPG based on how every top-5 drafted RB since 2012 has performed. That's an elite-tier profile, and elite tier is exactly what holds its value in an 8-team league ? $11 is a clear bargain even with Tyler Allgeier and James Conner clouding his early touches in Arizona."
+    analysis: "Consensus RB11 with a rookie-season floor around 14 PPG based on how every top-5 drafted RB since 2012 has performed. That's an elite-tier profile, and elite tier is exactly what holds its value in an 8-team league — $11 is a clear bargain even with Tyler Allgeier and James Conner clouding his early touches in Arizona."
   },
   {
     callout: "Tarry",
@@ -609,7 +609,7 @@ const picks = [
     draft: true,
     winner: "Tarry",
     amount: 10,
-    analysis: "Landed the No. 1 WR job in Tennessee as the 4th overall pick, but redraft consensus still has him fringe WR2/3 (ESPN's Top 300 ranks him 51st overall, 25th at the position) given Cam Ward's unproven passing offense. In an 8-team league that tier dilutes fastest ? with only 24 league-wide starting WR spots, a back-end WR2 is closer to replacement level than the draft capital suggests. $10 pays for the ceiling, not the current floor."
+    analysis: "Landed the No. 1 WR job in Tennessee as the 4th overall pick, but redraft consensus still has him fringe WR2/3 (ESPN's Top 300 ranks him 51st overall, 25th at the position) given Cam Ward's unproven passing offense. In an 8-team league that tier dilutes fastest — with only 24 league-wide starting WR spots, a back-end WR2 is closer to replacement level than the draft capital suggests. $10 pays for the ceiling, not the current floor."
   },
   {
     callout: "Michael",
@@ -619,7 +619,7 @@ const picks = [
     draft: true,
     winner: "Michael",
     amount: 11,
-    analysis: "A committee back on paper ? sharing camp reps with George Holani and Emanuel Wilson ? until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
+    analysis: "A committee back on paper — sharing camp reps with George Holani and Emanuel Wilson — until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
   },
   {
     callout: "Elian",
@@ -634,11 +634,11 @@ const picks = [
     player: "Christian McCaffrey",
     pos: "RB",
     team: "SF",
-    bids: { Chad: "out", Jeremy: "out", Elian: 30, Aric: "out", Michael: 48 }
+    bids: { Chad: "out", Jeremy: "out", Elian: 37, Aric: "out", Michael: 48, Scottie: 47, Powers: "out" }
   }
 ];
 
-// Call-out order strip ? the rookie draft (4 non-playoff teams) is done, so
+// Call-out order strip — the rookie draft (4 non-playoff teams) is done, so
 // the regular auction rotation starts fresh at the top of bidOrder. Only
 // non-draft picks count toward this rotation going forward.
 const auctionOnlyResolved = picks.filter(p => p.winner && !p.draft).length;
@@ -736,7 +736,7 @@ rosterOwners.forEach(name => {
   maxOutBody.appendChild(tr);
 });
 
-// Roster grid ? keepers are slotted first (in the order listed above, so the
+// Roster grid — keepers are slotted first (in the order listed above, so the
 // best players at a crowded position land in the starting slots and the rest
 // go to the bench), then resolved rookie-draft/auction picks fill in after.
 const rosterAssignments = {};
@@ -785,7 +785,7 @@ footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
 }).join('');
 rosterBody.appendChild(footerTr);
 
-// Top 10 Available ? best players by current consensus PPR rank, filtered
+// Top 10 Available — best players by current consensus PPR rank, filtered
 // against everyone's keepers and rookie-draft picks. Static snapshot; needs
 // a manual refresh as the auction eats into the pool.
 const rosteredPlayers = new Set();
