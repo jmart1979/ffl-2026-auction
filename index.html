@@ -652,7 +652,16 @@ const picks = [
     player: "Justin Jefferson",
     pos: "WR",
     team: "MIN",
-    bids: { Michael: "out", Elian: 41, Jeremy: "out", Chad: "out", Scottie: "out", Tarry: 34, Powers: "out", Aric: "out" }
+    winner: "Elian",
+    amount: 41,
+    analysis: "Ranked 12th overall (WR5) in the same current PPR consensus — a clear top-15 asset and one of the most complete WR1s in the league when right. That elite tier holds its value directly in an 8-team league; receiver is deep enough overall that a true top-15 difference-maker still stands well apart from the replaceable tier just below him. $41 is a big number, but it's proportionate to what's already gone this auction (McCaffrey $58, Henry $19) and buys a genuine top-15 piece rather than mid-tier WR2 risk. The swing factor is availability given some injury history, not talent or target share."
+  },
+  {
+    callout: "Elian",
+    player: "Joe Burrow",
+    pos: "QB",
+    team: "CIN",
+    bids: { Elian: 5, Aric: 6 }
   }
 ];
 
@@ -817,7 +826,6 @@ picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
   { player: "De'Von Achane", pos: "RB", team: "MIA" },
-  { player: "Justin Jefferson", pos: "WR", team: "MIN" },
   { player: "Chase Brown", pos: "RB", team: "CIN" },
   { player: "Kenneth Walker III", pos: "RB", team: "KC" },
   { player: "Saquon Barkley", pos: "RB", team: "PHI" },
