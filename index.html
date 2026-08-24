@@ -635,14 +635,24 @@ const picks = [
     pos: "RB",
     team: "SF",
     winner: "Elian",
-    amount: 58
+    amount: 58,
+    analysis: "Ranked 3rd overall in current PPR consensus (Field Yates, Aug 21 2026) — the clearest true elite-tier asset in this whole auction. That top-5-overall tier is exactly where value translates directly in an 8-team league, since every team wants a workhorse RB1 and there's no depth to fall back on. $58 eats nearly 30% of the cap, but paying up for a consensus top-3 player is defensible when the alternative dollars would otherwise go toward replacement-level depth that's nearly free in a league this shallow. The real risk is health given his recent injury history, not talent or role."
   },
   {
     callout: "Tarry",
     player: "Derrick Henry",
     pos: "RB",
     team: "BAL",
-    bids: { Tarry: "out", Michael: "out", Scottie: 17, Jeremy: 15, Aric: "out", Chad: "out", Elian: "out", Powers: "out" }
+    winner: "Scottie",
+    amount: 19,
+    analysis: "Ranked 11th overall in the same current PPR consensus — still comfortably inside the true elite tier despite entering his age-32 season. Baltimore's offensive line keeps his workhorse role and floor high, and in an 8-team league that top-12-overall profile holds its value directly. $19 for a top-12 talent is one of the better values of the auction so far; the medium-term risk is a sudden age-driven decline rather than anything specific to 2026."
+  },
+  {
+    callout: "Michael",
+    player: "Justin Jefferson",
+    pos: "WR",
+    team: "MIN",
+    bids: { Michael: 15, Elian: 26, Jeremy: 24 }
   }
 ];
 
@@ -744,9 +754,13 @@ rosterOwners.forEach(name => {
   maxOutBody.appendChild(tr);
 });
 
-// Roster grid — keepers are slotted first (in the order listed above, so the
-// best players at a crowded position land in the starting slots and the rest
-// go to the bench), then resolved rookie-draft/auction picks fill in after.
+// Roster grid — keepers and resolved auction/rookie-draft picks are combined
+// per team, then sorted by salary descending before slotting. That way the
+// higher-value player at a crowded position always lands in the starting
+// slot and the cheaper one gets bumped to the bench, regardless of whether
+// it was a keeper or a later auction win (e.g. McCaffrey $58 outranks
+// Javonte Williams $11 on Elian's RB depth chart even though Williams was
+// on the roster first).
 const rosterAssignments = {};
 rosterOwners.forEach(o => { rosterAssignments[o] = new Array(positions.length).fill(null); });
 
@@ -762,16 +776,15 @@ function findOpenSlot(owner, pos) {
 }
 
 rosterOwners.forEach(owner => {
-  (keepersData[owner] || []).forEach(k => {
-    const slot = findOpenSlot(owner, k.pos);
-    if (slot !== -1) rosterAssignments[owner][slot] = `${k.player} ($${k.salary})`;
+  const entries = [
+    ...(keepersData[owner] || []).map(k => ({ pos: k.pos, player: k.player, salary: k.salary })),
+    ...picks.filter(p => p.winner === owner).map(p => ({ pos: p.pos, player: p.player, salary: p.amount }))
+  ];
+  entries.sort((a, b) => b.salary - a.salary);
+  entries.forEach(e => {
+    const slot = findOpenSlot(owner, e.pos);
+    if (slot !== -1) rosterAssignments[owner][slot] = `${e.player} ($${e.salary})`;
   });
-});
-
-picks.forEach(p => {
-  if (!p.winner) return; // only resolved picks land on the roster
-  const slot = findOpenSlot(p.winner, p.pos);
-  if (slot !== -1) rosterAssignments[p.winner][slot] = `${p.player} ($${p.amount})`;
 });
 
 const rosterHeader = document.getElementById('rosterHeader');
