@@ -509,7 +509,7 @@ const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
   "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
   "B (TE)","B (DEF)"];
 
-// Keeper submission status ? teams turn green here once their keepers are in.
+// Keeper submission status — teams turn green here once their keepers are in.
 // rosterOwners is already alphabetical, so it's reused for this list.
 const keepersIn = ["Aric", "Chad", "Elian", "Jeremy", "Michael", "Powers", "Scottie", "Tarry"];
 
@@ -522,7 +522,7 @@ rosterOwners.forEach(name => {
 });
 
 // Keeper data, from the submitted 2026 keeper sheet. Order within each team
-// matters where a position has more keepers than starting slots ? the first
+// matters where a position has more keepers than starting slots — the first
 // N (by our own value read) get the starting spot, the rest land on the bench.
 // Only Aric's WR group is actually squeezed (4 kept, 3 starting WR spots);
 // everyone else's keepers fit their starting slots exactly or with room to spare.
@@ -573,7 +573,7 @@ const keepersData = {
   ]
 };
 
-// Positions each team has said they're done bidding on ? this speeds the
+// Positions each team has said they're done bidding on — this speeds the
 // auction along ("I'm out on RB", etc.) and has nothing to do with dollars.
 // Manually maintained; empty for everyone until someone declares out.
 const outPositions = {
@@ -585,9 +585,9 @@ const outPositions = {
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
 // (has a `bids` map of owner -> number (current high bid) or "out").
 // `draft: true` marks rookie-draft picks (only the 4 non-playoff teams
-// participate) ? these don't count toward the regular call-out rotation.
+// participate) — these don't count toward the regular call-out rotation.
 // `analysis` is real value commentary, researched and written manually per
-// pick (this is a static site, so it can't call out to Claude live) ? adjusted
+// pick (this is a static site, so it can't call out to Claude live) — adjusted
 // for the fact that this is an 8-team league, not the 12-team default most
 // fantasy tools assume. Tap "Analysis" next to a player's name to see it.
 const picks = [
@@ -599,7 +599,7 @@ const picks = [
     draft: true,
     winner: "Chad",
     amount: 11,
-    analysis: "Consensus RB11 with a rookie-season floor around 14 PPG based on how every top-5 drafted RB since 2012 has performed. That's an elite-tier profile, and elite tier is exactly what holds its value in an 8-team league ? $11 is a clear bargain even with Tyler Allgeier and James Conner clouding his early touches in Arizona."
+    analysis: "Consensus RB11 with a rookie-season floor around 14 PPG based on how every top-5 drafted RB since 2012 has performed. That's an elite-tier profile, and elite tier is exactly what holds its value in an 8-team league — $11 is a clear bargain even with Tyler Allgeier and James Conner clouding his early touches in Arizona."
   },
   {
     callout: "Tarry",
@@ -609,7 +609,7 @@ const picks = [
     draft: true,
     winner: "Tarry",
     amount: 10,
-    analysis: "Landed the No. 1 WR job in Tennessee as the 4th overall pick, but redraft consensus still has him fringe WR2/3 (ESPN's Top 300 ranks him 51st overall, 25th at the position) given Cam Ward's unproven passing offense. In an 8-team league that tier dilutes fastest ? with only 24 league-wide starting WR spots, a back-end WR2 is closer to replacement level than the draft capital suggests. $10 pays for the ceiling, not the current floor."
+    analysis: "Landed the No. 1 WR job in Tennessee as the 4th overall pick, but redraft consensus still has him fringe WR2/3 (ESPN's Top 300 ranks him 51st overall, 25th at the position) given Cam Ward's unproven passing offense. In an 8-team league that tier dilutes fastest — with only 24 league-wide starting WR spots, a back-end WR2 is closer to replacement level than the draft capital suggests. $10 pays for the ceiling, not the current floor."
   },
   {
     callout: "Michael",
@@ -619,7 +619,7 @@ const picks = [
     draft: true,
     winner: "Michael",
     amount: 11,
-    analysis: "A committee back on paper ? sharing camp reps with George Holani and Emanuel Wilson ? until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
+    analysis: "A committee back on paper — sharing camp reps with George Holani and Emanuel Wilson — until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
   },
   {
     callout: "Elian",
@@ -636,7 +636,7 @@ const picks = [
     team: "SF",
     winner: "Elian",
     amount: 58,
-    analysis: "Ranked 3rd overall in current PPR consensus (Field Yates, Aug 21 2026) ? the clearest true elite-tier asset in this whole auction. That top-5-overall tier is exactly where value translates directly in an 8-team league, since every team wants a workhorse RB1 and there's no depth to fall back on. $58 eats nearly 30% of the cap, but paying up for a consensus top-3 player is defensible when the alternative dollars would otherwise go toward replacement-level depth that's nearly free in a league this shallow. The real risk is health given his recent injury history, not talent or role."
+    analysis: "Ranked 3rd overall in current PPR consensus (Field Yates, Aug 21 2026) — the clearest true elite-tier asset in this whole auction. That top-5-overall tier is exactly where value translates directly in an 8-team league, since every team wants a workhorse RB1 and there's no depth to fall back on. $58 eats nearly 30% of the cap, but paying up for a consensus top-3 player is defensible when the alternative dollars would otherwise go toward replacement-level depth that's nearly free in a league this shallow. The real risk is health given his recent injury history, not talent or role."
   },
   {
     callout: "Tarry",
@@ -645,7 +645,7 @@ const picks = [
     team: "BAL",
     winner: "Scottie",
     amount: 19,
-    analysis: "Ranked 11th overall in the same current PPR consensus ? still comfortably inside the true elite tier despite entering his age-32 season. Baltimore's offensive line keeps his workhorse role and floor high, and in an 8-team league that top-12-overall profile holds its value directly. $19 for a top-12 talent is one of the better values of the auction so far; the medium-term risk is a sudden age-driven decline rather than anything specific to 2026."
+    analysis: "Ranked 11th overall in the same current PPR consensus — still comfortably inside the true elite tier despite entering his age-32 season. Baltimore's offensive line keeps his workhorse role and floor high, and in an 8-team league that top-12-overall profile holds its value directly. $19 for a top-12 talent is one of the better values of the auction so far; the medium-term risk is a sudden age-driven decline rather than anything specific to 2026."
   },
   {
     callout: "Michael",
@@ -654,7 +654,7 @@ const picks = [
     team: "MIN",
     winner: "Elian",
     amount: 41,
-    analysis: "Ranked 12th overall (WR5) in the same current PPR consensus ? a clear top-15 asset and one of the most complete WR1s in the league when right. That elite tier holds its value directly in an 8-team league; receiver is deep enough overall that a true top-15 difference-maker still stands well apart from the replaceable tier just below him. $41 is a big number, but it's proportionate to what's already gone this auction (McCaffrey $58, Henry $19) and buys a genuine top-15 piece rather than mid-tier WR2 risk. The swing factor is availability given some injury history, not talent or target share."
+    analysis: "Ranked 12th overall (WR5) in the same current PPR consensus — a clear top-15 asset and one of the most complete WR1s in the league when right. That elite tier holds its value directly in an 8-team league; receiver is deep enough overall that a true top-15 difference-maker still stands well apart from the replaceable tier just below him. $41 is a big number, but it's proportionate to what's already gone this auction (McCaffrey $58, Henry $19) and buys a genuine top-15 piece rather than mid-tier WR2 risk. The swing factor is availability given some injury history, not talent or target share."
   },
   {
     callout: "Elian",
@@ -663,7 +663,7 @@ const picks = [
     team: "CIN",
     winner: "Michael",
     amount: 20,
-    analysis: "Ranked QB8 (74th overall) in the strict current consensus, though several other outlets have him higher on a per-game basis ? QB3 in 2024 at 22.5 PPG before injuries limited him to 8 games in 2025. That split matters in an 8-team league: with only 8 starting QB spots needed league-wide, replacement-level QB play is much easier to find here than at RB or WR, so $20 on a quarterback ? even a talented one ? is more of an allocation call than a clear value win. Ja'Marr Chase, Tee Higgins, and a shootout-prone defense give him a real top-5 ceiling when healthy; the swing risk is durability, having missed real time in two of the last three seasons."
+    analysis: "Ranked QB8 (74th overall) in the strict current consensus, though several other outlets have him higher on a per-game basis — QB3 in 2024 at 22.5 PPG before injuries limited him to 8 games in 2025. That split matters in an 8-team league: with only 8 starting QB spots needed league-wide, replacement-level QB play is much easier to find here than at RB or WR, so $20 on a quarterback — even a talented one — is more of an allocation call than a clear value win. Ja'Marr Chase, Tee Higgins, and a shootout-prone defense give him a real top-5 ceiling when healthy; the swing risk is durability, having missed real time in two of the last three seasons."
   },
   {
     callout: "Scottie",
@@ -672,18 +672,27 @@ const picks = [
     team: "PHI",
     winner: "Michael",
     amount: 27,
-    analysis: "Ranked 21st overall in current PPR consensus ? after a historic 2024 with the Eagles (2,000+ rushing yards, a Super Bowl run), he's firmly in the RB1 tier even allowing for some normal regression. That top-25-overall profile is real value in an 8-team league, since every team needs a workhorse back and the position thins out fast beyond this tier. $27 is a fair price for a true RB1, especially with McCaffrey and Henry already going for more with less proven recent volume; Philadelphia's offensive line and his league-leading efficiency give him both a real floor and a real ceiling."
+    analysis: "Ranked 21st overall in current PPR consensus — after a historic 2024 with the Eagles (2,000+ rushing yards, a Super Bowl run), he's firmly in the RB1 tier even allowing for some normal regression. That top-25-overall profile is real value in an 8-team league, since every team needs a workhorse back and the position thins out fast beyond this tier. $27 is a fair price for a true RB1, especially with McCaffrey and Henry already going for more with less proven recent volume; Philadelphia's offensive line and his league-leading efficiency give him both a real floor and a real ceiling."
   },
   {
     callout: "Powers",
     player: "A.J. Brown",
     pos: "WR",
     team: "NE",
-    bids: { Powers: 16, Chad: 17, Michael: "out", Aric: "out", Jeremy: "out" }
+    winner: "Tarry",
+    amount: 26,
+    analysis: "Ranked 26th overall in the same current PPR consensus — a proven true WR1 now anchoring a retooled Patriots passing offense. That top-30-overall profile still comfortably clears the elite-tier bar in an 8-team league, where locking in a real target-share monster matters more than the specific team context. $26 is reasonable relative to what's already gone this auction (Jefferson $41, Barkley $27) for a legitimate WR1 role, though New England's offensive situation carries more uncertainty than the perennial contenders already off the board."
+  },
+  {
+    callout: "Aric",
+    player: "Nico Collins",
+    pos: "WR",
+    team: "HOU",
+    bids: { Aric: "out", Elian: 10, Chad: "out", Powers: 25, Scottie: "out", Jeremy: "out" }
   }
 ];
 
-// Call-out order strip ? the rookie draft (4 non-playoff teams) is done, so
+// Call-out order strip — the rookie draft (4 non-playoff teams) is done, so
 // the regular auction rotation starts fresh at the top of bidOrder. Only
 // non-draft picks count toward this rotation going forward.
 const auctionOnlyResolved = picks.filter(p => p.winner && !p.draft).length;
@@ -781,7 +790,7 @@ rosterOwners.forEach(name => {
   maxOutBody.appendChild(tr);
 });
 
-// Roster grid ? keepers and resolved auction/rookie-draft picks are combined
+// Roster grid — keepers and resolved auction/rookie-draft picks are combined
 // per team, then sorted by salary descending before slotting. That way the
 // higher-value player at a crowded position always lands in the starting
 // slot and the cheaper one gets bumped to the bench, regardless of whether
@@ -833,7 +842,7 @@ footerTr.innerHTML = '<td>Slots Filled</td>' + rosterOwners.map(owner => {
 }).join('');
 rosterBody.appendChild(footerTr);
 
-// Top 10 Available ? best players by current consensus PPR rank, filtered
+// Top 10 Available — best players by current consensus PPR rank, filtered
 // against everyone's keepers and rookie-draft picks. Static snapshot; needs
 // a manual refresh as the auction eats into the pool.
 const rosteredPlayers = new Set();
