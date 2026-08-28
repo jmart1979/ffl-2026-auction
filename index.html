@@ -472,7 +472,7 @@
 <div id="rostersTab" style="display:none;">
 
   <h2 style="margin-top:0;">Team Max / $ Out</h2>
-  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total). Out = positions a team has said they're done bidding on for the rest of the auction.</div>
+  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total). Shaded green-to-red relative to the other 7 teams right now &mdash; more cap space is greener. Out = positions a team has said they're done bidding on for the rest of the auction.</div>
   <table id="maxOutTable">
     <thead><tr><th>Team</th><th>Max Bid</th><th>Out</th></tr></thead>
     <tbody></tbody>
@@ -751,7 +751,16 @@ const picks = [
     player: "Jayden Daniels",
     pos: "QB",
     team: "WSH",
-    bids: { Powers: 3, Aric: 4, Chad: "out", Michael: "out", Scottie: "out", Jeremy: "out" }
+    winner: "Tarry",
+    amount: 5,
+    analysis: "Ranked around 40th overall in current PPR consensus ? a rising dual-threat QB1 who's already shown flashes of a real ceiling behind a competent Washington offense. That's well outside the true elite QB tier gone earlier this auction (Burrow $20), but $5 is a near-free speculative price for legitimate weekly QB1 upside in an 8-team league, where replacement-level QB play is easy to find anyway. The swing factor is durability and a still-developing supporting cast, not talent."
+  },
+  {
+    callout: "Aric",
+    player: "Garrett Wilson",
+    pos: "WR",
+    team: "NYJ",
+    bids: { Aric: "out", Powers: 16, Michael: "out", Chad: 15, Elian: "out", Jeremy: "out", Tarry: "out" }
   }
 ];
 
@@ -843,12 +852,31 @@ function teamStats(owner) {
 }
 
 // Team Max / $ Out table
-const maxOutBody = document.querySelector('#maxOutTable tbody');rosterOwners.forEach(name => {
+// Max Bid gets a green-to-red background scale, relative to the other 7
+// teams right now ? more cap space is "good" (greener), less is "bad" (redder).
+// This is a moving target: it recalculates fresh off whatever's in `picks`
+// each time the page loads, so it always reflects the current auction state.
+function maxBidColor(val, min, max) {
+  const range = (max - min) || 1;
+  const t = (val - min) / range; // 0 (lowest) to 1 (highest)
+  const r = Math.round(240 - 100 * t);
+  const g = Math.round(190 + 40 * t);
+  const b = Math.round(190 - 90 * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+const allMaxBids = rosterOwners.map(name => teamStats(name).maxBid);
+const minMaxBid = Math.min(...allMaxBids);
+const maxMaxBid = Math.max(...allMaxBids);
+
+const maxOutBody = document.querySelector('#maxOutTable tbody');
+rosterOwners.forEach(name => {
   const s = teamStats(name);
   const out = outPositions[name] || [];
   const outText = out.length ? out.join(', ') : '\u2014';
+  const bidColor = maxBidColor(s.maxBid, minMaxBid, maxMaxBid);
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td>$${s.maxBid}</td><td>${outText}</td>`;
+  tr.innerHTML = `<td>${name}</td><td style="background:${bidColor};font-weight:700;">$${s.maxBid}</td><td>${outText}</td>`;
   maxOutBody.appendChild(tr);
 });
 
