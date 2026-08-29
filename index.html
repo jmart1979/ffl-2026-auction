@@ -769,7 +769,25 @@ const picks = [
     player: "Jaylen Waddle",
     pos: "WR",
     team: "DEN",
-    bids: { Jeremy: "out", Michael: "out", Aric: "out", Powers: 9, Chad: "out", Elian: 11, Scottie: "out" }
+    winner: "Elian",
+    amount: 11,
+    analysis: "Ranked 44th overall (WR19) in current PPR consensus, now catching passes in Denver after an offseason trade. That's outside the elite top-30 tier gone earlier this auction, but still a legitimate low-end WR2 with real speed and target volume. $11 is a fair price for a proven route-runner in a new offense; the main swing factor is chemistry and target competition in Denver, not raw talent."
+  },
+  {
+    callout: "Chad",
+    player: "DJ Moore",
+    pos: "WR",
+    team: "BUF",
+    winner: "Chad",
+    amount: 15,
+    analysis: "Ranked 72nd overall (WR27) in current PPR consensus after a rough 2025 in Chicago, but now catches passes from Josh Allen in Buffalo as the presumptive WR1 with far less target competition. That's a real WR3/flex profile in an 8-team league rather than a true difference-maker, but $15 is a fair bounce-back bet given the clear opportunity upgrade; the swing risk is whether last year's decline was age-related or offense-driven."
+  },
+  {
+    callout: "Tarry",
+    player: "Breece Hall",
+    pos: "RB",
+    team: "NYJ",
+    bids: { Tarry: 5, Michael: "out", Chad: 8, Jeremy: 14, Scottie: "out", Powers: "out", Aric: "out", Elian: "out" }
   }
 ];
 
@@ -951,25 +969,26 @@ rosterOwners.forEach(owner => {
 picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
-  { player: "De'Von Achane", pos: "RB", team: "MIA" },
-  { player: "Chase Brown", pos: "RB", team: "CIN" },
-  { player: "Kenneth Walker III", pos: "RB", team: "KC" },
-  { player: "Saquon Barkley", pos: "RB", team: "PHI" },
-  { player: "Malik Nabers", pos: "WR", team: "NYG" },
-  { player: "A.J. Brown", pos: "WR", team: "NE" },
   { player: "Breece Hall", pos: "RB", team: "NYJ" },
-  { player: "Kyren Williams", pos: "RB", team: "LAR" },
-  { player: "Garrett Wilson", pos: "WR", team: "NYJ" },
-  { player: "Colston Loveland", pos: "TE", team: "CHI" },
-  { player: "Travis Etienne Jr.", pos: "RB", team: "NO" },
-  { player: "Quinshon Judkins", pos: "RB", team: "CLE" },
-  { player: "Nico Collins", pos: "WR", team: "HOU" },
-  { player: "Jayden Daniels", pos: "QB", team: "WSH" },
-  { player: "Jaylen Waddle", pos: "WR", team: "DEN" },
   { player: "D'Andre Swift", pos: "RB", team: "CHI" },
   { player: "Cam Skattebo", pos: "RB", team: "NYG" },
   { player: "Drake Maye", pos: "QB", team: "NE" },
-  { player: "Bucky Irving", pos: "RB", team: "TB" }
+  { player: "Bucky Irving", pos: "RB", team: "TB" },
+  { player: "Davante Adams", pos: "WR", team: "LAR" },
+  { player: "Ladd McConkey", pos: "WR", team: "LAC" },
+  { player: "Jalen Hurts", pos: "QB", team: "PHI" },
+  { player: "Harold Fannin Jr.", pos: "TE", team: "CLE" },
+  { player: "Bhayshul Tuten", pos: "RB", team: "JAX" },
+  { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
+  { player: "Kyle Pitts Sr.", pos: "TE", team: "ATL" },
+  { player: "Justin Herbert", pos: "QB", team: "LAC" },
+  { player: "Terry McLaurin", pos: "WR", team: "WSH" },
+  { player: "Tony Pollard", pos: "RB", team: "TEN" },
+  { player: "George Kittle", pos: "TE", team: "SF" },
+  { player: "Rhamondre Stevenson", pos: "RB", team: "NE" },
+  { player: "TreVeyon Henderson", pos: "RB", team: "NE" },
+  { player: "Rome Odunze", pos: "WR", team: "CHI" },
+  { player: "DK Metcalf", pos: "WR", team: "PIT" }
 ];
 
 const availListEl = document.getElementById('availList');
