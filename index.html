@@ -479,6 +479,7 @@
   </table>
 
   <h2 style="margin-top:24px;">Roster Grid</h2>
+  <div class="order-note">Each position has its own color (QB purple, RB green, WR blue, TE orange, K gray, DEF pink) &mdash; bench rows match their starting position's color.</div>
   <table id="rosterTable">
     <thead><tr id="rosterHeader"></tr></thead>
     <tbody></tbody>
@@ -787,14 +788,49 @@ const picks = [
     player: "Breece Hall",
     pos: "RB",
     team: "NYJ",
-    bids: { Tarry: 5, Michael: "out", Chad: 8, Jeremy: 14, Scottie: "out", Powers: "out", Aric: "out", Elian: "out" }
+    winner: "Jeremy",
+    amount: 20,
+    analysis: "Ranked 31st overall in current PPR consensus — a true three-down role for the Jets with real receiving work built in. That's outside the true elite tier gone earlier this auction, but still a legitimate weekly RB2 with a real receiving floor as a safety net. $20 is a fair price for a locked-in workhorse role, even with some questions about the Jets' overall offensive competence capping the ceiling."
+  },
+  {
+    callout: "Michael",
+    player: "George Kittle",
+    pos: "TE",
+    team: "SF",
+    winner: "Michael",
+    amount: 9,
+    analysis: "Ranked 64th overall (TE7) in current PPR consensus — a proven high-floor TE1 who's been one of the most consistent producers at the position for years. That's outside the elite skill-position tiers, but a real difference-maker at a spot where replacement level falls off fast even in an 8-team league. $9 is a fair price for a locked-in weekly starter at a scarce position."
+  },
+  {
+    callout: "Elian",
+    player: "Houston Texans D",
+    pos: "DEF",
+    team: "HOU",
+    winner: "Elian",
+    amount: 3,
+    analysis: "Houston's defense has been a top-tier unit the last two seasons behind a strong pass rush and opportunistic secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, so $3 for a genuinely good unit is exactly the kind of bargain worth locking in rather than chasing matchups off the wire every week."
+  },
+  {
+    callout: "Scottie",
+    player: "Passed",
+    pos: "\u2014",
+    team: "\u2014",
+    passed: true
+  },
+  {
+    callout: "Powers",
+    player: "Colston Loveland",
+    pos: "TE",
+    team: "CHI",
+    bids: { Powers: 5, Jeremy: 9, Chad: 15, Tarry: 16, Michael: "out", Aric: "out", Elian: "out" }
   }
 ];
 
 // Call-out order strip — the rookie draft (4 non-playoff teams) is done, so
 // the regular auction rotation starts fresh at the top of bidOrder. Only
-// non-draft picks count toward this rotation going forward.
-const auctionOnlyResolved = picks.filter(p => p.winner && !p.draft).length;
+// non-draft picks count toward this rotation going forward, and a pass
+// still takes up a turn even though nobody won it.
+const auctionOnlyResolved = picks.filter(p => !p.draft && (p.winner || p.passed)).length;
 const nextIndex = auctionOnlyResolved % bidOrder.length;
 
 const stripEl = document.getElementById('orderStrip');
@@ -943,11 +979,31 @@ rosterOwners.forEach(owner => {
 const rosterHeader = document.getElementById('rosterHeader');
 rosterHeader.innerHTML = '<th>Position</th>' + rosterOwners.map(o => `<th>${o}</th>`).join('');
 const rosterBody = document.querySelector('#rosterTable tbody');
+
+// Each position gets its own light background tint so the grid is easy to
+// scan at a glance — bench rows share the same color as their starting
+// position (e.g. "B (RB)" gets the same tint as "RB").
+const positionColors = {
+  QB: '#ede9fe',
+  RB: '#d1fae5',
+  WR: '#dbeafe',
+  TE: '#fed7aa',
+  K: '#e5e7eb',
+  DEF: '#fbcfe8'
+};
+function positionColor(pos) {
+  const base = pos.replace(/^B \(/, '').replace(/\)$/, '');
+  return positionColors[base] || '#f7f7f8';
+}
+
 positions.forEach((pos, posIdx) => {
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${pos}</td>` + rosterOwners.map(owner => {
+  const bg = positionColor(pos);
+  tr.innerHTML = `<td style="background:${bg};font-weight:700;">${pos}</td>` + rosterOwners.map(owner => {
     const player = rosterAssignments[owner][posIdx];
-    return player ? `<td class="filled">${player}</td>` : '<td class="empty">\u2014</td>';
+    return player
+      ? `<td class="filled" style="background:${bg};">${player}</td>`
+      : `<td class="empty" style="background:${bg};">\u2014</td>`;
   }).join('');
   rosterBody.appendChild(tr);
 });
