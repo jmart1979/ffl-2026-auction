@@ -920,7 +920,49 @@ const picks = [
     pos: "TE",
     team: "ATL",
     rank: 58,
-    bids: { Scottie: 2, Michael: 7, Chad: "out", Powers: "out", Aric: "out", Jeremy: "out" }
+    winner: "Scottie",
+    amount: 8,
+    analysis: "Ranked 58th overall (TE6) in current PPR consensus — a former top-5 pick still searching for a real breakout in Atlanta's crowded passing offense, but flashes of elite athletic upside remain. That's outside the true elite TE tier, but a legitimate TE1/2 with real ceiling if the target competition thins out. $8 is a fair speculative price for that kind of talent at a scarce position; the swing risk is target share, not physical ability."
+  },
+  {
+    callout: "Elian",
+    player: "Cam Skattebo",
+    pos: "RB",
+    team: "NYG",
+    rank: 45,
+    winner: "Elian",
+    amount: 10,
+    analysis: "Ranked 45th overall (RB20) in current PPR consensus — a physical, punishing runner who emerged as a real complementary piece in New York's backfield as a rookie. That's outside the true elite tier but a legitimate flex/RB3 with real goal-line and short-yardage value. $10 is a fair price for that kind of proven role; the swing risk is snap competition in a crowded Giants backfield, not talent."
+  },
+  {
+    callout: "Michael",
+    player: "Bucky Irving",
+    pos: "RB",
+    team: "TB",
+    rank: 47,
+    winner: "Michael",
+    amount: 9,
+    analysis: "Ranked 47th overall (RB21) in current PPR consensus — a genuine three-down back who broke out as Tampa Bay's clear lead ballcarrier. That's outside the elite tier but a legitimate flex/RB3 with real workload; $9 is a fair price for that kind of proven role, though touchdown competition in a crowded red-zone offense caps some of the ceiling."
+  },
+  {
+    callout: "Powers",
+    player: "Terry McLaurin",
+    pos: "WR",
+    team: "WSH",
+    rank: 60,
+    winner: "Powers",
+    amount: 7,
+    analysis: "Ranked 60th overall (WR23) in current PPR consensus after a rough, injury-shortened 2025 — he's still Washington's clear No. 1 receiver with Jayden Daniels back healthy and minimal target competition. That's outside the elite tier, but real bounce-back upside given his career-best per-route efficiency last year despite the down box score. $7 is a near-throwaway price for that kind of talent; the swing risk is health, not role or ability."
+  },
+  {
+    callout: "Powers",
+    player: "Kaimi Fairbairn",
+    pos: "K",
+    team: "HOU",
+    rank: 403,
+    winner: "Powers",
+    amount: 2,
+    analysis: "A steady, accurate leg on a Houston offense that should generate real scoring chances behind a strong defense and improving passing attack. Kicker is the ultimate replacement-level position in an 8-team league, so $2 is a trivial percentage of the cap for a reliable weekly starter — not a spot worth overthinking."
   }
 ];
 
@@ -1126,26 +1168,21 @@ rosterOwners.forEach(owner => {
 picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
-  { player: "Breece Hall", pos: "RB", team: "NYJ" },
-  { player: "D'Andre Swift", pos: "RB", team: "CHI" },
-  { player: "Cam Skattebo", pos: "RB", team: "NYG" },
-  { player: "Drake Maye", pos: "QB", team: "NE" },
-  { player: "Bucky Irving", pos: "RB", team: "TB" },
-  { player: "Davante Adams", pos: "WR", team: "LAR" },
-  { player: "Ladd McConkey", pos: "WR", team: "LAC" },
   { player: "Jalen Hurts", pos: "QB", team: "PHI" },
   { player: "Harold Fannin Jr.", pos: "TE", team: "CLE" },
   { player: "Bhayshul Tuten", pos: "RB", team: "JAX" },
   { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
-  { player: "Kyle Pitts Sr.", pos: "TE", team: "ATL" },
   { player: "Justin Herbert", pos: "QB", team: "LAC" },
-  { player: "Terry McLaurin", pos: "WR", team: "WSH" },
   { player: "Tony Pollard", pos: "RB", team: "TEN" },
-  { player: "George Kittle", pos: "TE", team: "SF" },
   { player: "Rhamondre Stevenson", pos: "RB", team: "NE" },
   { player: "TreVeyon Henderson", pos: "RB", team: "NE" },
   { player: "Rome Odunze", pos: "WR", team: "CHI" },
-  { player: "DK Metcalf", pos: "WR", team: "PIT" }
+  { player: "DK Metcalf", pos: "WR", team: "PIT" },
+  { player: "Kenneth Gainwell", pos: "RB", team: "TB" },
+  { player: "Jaxson Dart", pos: "QB", team: "NYG" },
+  { player: "Jaylen Warren", pos: "RB", team: "PIT" },
+  { player: "Marvin Harrison Jr.", pos: "WR", team: "ARI" },
+  { player: "Jonathon Brooks", pos: "RB", team: "CAR" }
 ];
 
 const availListEl = document.getElementById('availList');
