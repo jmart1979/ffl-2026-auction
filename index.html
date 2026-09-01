@@ -456,6 +456,11 @@
         <div class="side-card-note">Best players not yet kept or drafted, per consensus PPR rankings (Aug 21, 2026). Updated manually &mdash; will need refreshing as the auction progresses.</div>
         <div id="availList"></div>
       </div>
+      <div class="side-card">
+        <div class="side-card-header">&#127942; Power Rankings</div>
+        <div class="side-card-note">Claude's read on team strength right now &mdash; 50% starting-lineup talent, 20% bench depth, 30% cap space &amp; buying power (including whether the remaining pool still has help at open needs). Recalculates automatically as the auction progresses &mdash; directional, not gospel.</div>
+        <div id="powerRankingsList"></div>
+      </div>
     </div>
 
   </div>
@@ -1153,6 +1158,99 @@ top10Pool
     row.innerHTML = `<div class="avail-rank">${i + 1}.</div><div class="avail-name">${p.player}</div><div class="avail-meta">${p.pos} &middot; ${p.team}</div>`;
     availListEl.appendChild(row);
   });
+
+// Power Rankings — a subjective "how good is this team right now" score,
+// blended 50% starting-lineup talent / 20% bench depth / 30% cap space &
+// buying power. Recalculates fresh off `picks`, `keepersData`, and
+// `top10Pool` every time the page loads, same as everything else here.
+//
+// Value curve: turns a player's overall rank into points, elite players
+// scoring much higher than replacement-level ones (rank 1 ~ 109 pts,
+// rank 50 ~ 60 pts, rank 110+ ~ 0 pts). K/DEF are excluded from both the
+// starter and depth scoring — the quality spread at those positions is too
+// small to meaningfully move "how good is this team."
+function valuePoints(rank) {
+  return Math.max(0, 110 - rank);
+}
+
+const STARTER_POS_COUNT = { QB: 1, RB: 2, WR: 3, TE: 1 };
+const BENCH_POS_COUNT = { QB: 1, RB: 4, WR: 5, TE: 1 };
+const totalStarterSlots = Object.values(STARTER_POS_COUNT).reduce((a, b) => a + b, 0); // 7
+const totalBenchSlots = Object.values(BENCH_POS_COUNT).reduce((a, b) => a + b, 0); // 11
+
+function teamPowerInputs(owner) {
+  const entries = [
+    ...(keepersData[owner] || []).map(k => ({ pos: k.pos, rank: k.rank })),
+    ...picks.filter(p => p.winner === owner).map(p => ({ pos: p.pos, rank: p.rank }))
+  ];
+  entries.sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
+
+  // Mirrors the roster grid's own slotting logic (best rank fills starters
+  // first), but skill positions only — this is what determines whether an
+  // incomplete roster's missing starters correctly drag its score down,
+  // since the denominators below are fixed at the full slot counts.
+  const starterSlotsLeft = { ...STARTER_POS_COUNT };
+  const starterRanks = [];
+  const benchRanks = [];
+  entries.forEach(e => {
+    if (starterSlotsLeft[e.pos] > 0) {
+      starterSlotsLeft[e.pos]--;
+      starterRanks.push(e.rank);
+    } else if (e.pos in STARTER_POS_COUNT) {
+      benchRanks.push(e.rank);
+    }
+  });
+
+  const starterValue = starterRanks.reduce((s, r) => s + valuePoints(r), 0) / totalStarterSlots;
+  const depthValue = benchRanks.reduce((s, r) => s + valuePoints(r), 0) / totalBenchSlots;
+
+  return { starterValue, depthValue, starterSlotsLeft };
+}
+
+// How many of a team's still-open starting positions have at least one
+// player left in the Top 10 Available pool — a rough proxy for how much
+// this team can still realistically improve with the money it has.
+function needMatchCount(starterSlotsLeft) {
+  let count = 0;
+  Object.entries(starterSlotsLeft).forEach(([pos, remaining]) => {
+    if (remaining > 0 && top10Pool.some(p => p.pos === pos && !rosteredPlayers.has(p.player))) {
+      count++;
+    }
+  });
+  return count;
+}
+
+const powerRaw = rosterOwners.map(owner => {
+  const { starterValue, depthValue, starterSlotsLeft } = teamPowerInputs(owner);
+  const s = teamStats(owner);
+  const matches = needMatchCount(starterSlotsLeft);
+  const opportunityRaw = s.maxBid * (1 + 0.15 * matches);
+  return { owner, starterValue, depthValue, opportunityRaw, maxBid: s.maxBid };
+});
+
+const maxOpportunity = Math.max(...powerRaw.map(p => p.opportunityRaw)) || 1;
+const maxStarter = Math.max(...powerRaw.map(p => p.starterValue)) || 1;
+const maxDepth = Math.max(...powerRaw.map(p => p.depthValue)) || 1;
+
+const powerScores = powerRaw.map(p => {
+  const starterPct = (p.starterValue / maxStarter) * 100;
+  const depthPct = (p.depthValue / maxDepth) * 100;
+  const opportunityPct = (p.opportunityRaw / maxOpportunity) * 100;
+  const blended = 0.5 * starterPct + 0.2 * depthPct + 0.3 * opportunityPct;
+  return { owner: p.owner, blended, starterPct, depthPct, opportunityPct, maxBid: p.maxBid };
+});
+
+const maxBlended = Math.max(...powerScores.map(p => p.blended)) || 1;
+powerScores.forEach(p => { p.display = Math.round((p.blended / maxBlended) * 100); });
+powerScores.sort((a, b) => b.blended - a.blended);
+
+const powerListEl = document.getElementById('powerRankingsList');
+powerScores.forEach((p, i) => {
+  const row = document.createElement('div');
+  row.className = 'avail-row';
+  row.innerHTML = `<div class="avail-rank">${i + 1}.</div><div class="avail-name">${p.owner}</div><div class="avail-meta">S ${Math.round(p.starterPct)} &middot; D ${Math.round(p.depthPct)} &middot; Cap $${p.maxBid}</div>`;
+  powerListEl.appendChild(row);
+});
 </script>
 
 </body>
