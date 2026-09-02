@@ -527,8 +527,11 @@ rosterOwners.forEach(name => {
   keeperStripEl.appendChild(span);
 });
 
-// Keeper data, from the submitted 2026 keeper sheet. Each keeper now also
-// carries a real-world overall PPR rank (see roster-grid sort note below).
+// Keeper data, from the submitted 2026 keeper sheet. Order within each team
+// matters where a position has more keepers than starting slots — the first
+// N (by our own value read) get the starting spot, the rest land on the bench.
+// Only Aric's WR group is actually squeezed (4 kept, 3 starting WR spots);
+// everyone else's keepers fit their starting slots exactly or with room to spare.
 const keepersData = {
   Aric: [
     { pos: "WR", player: "Puka Nacua", salary: 47, rank: 5 },
@@ -589,12 +592,10 @@ const outPositions = {
 // (has a `bids` map of owner -> number (current high bid) or "out").
 // `draft: true` marks rookie-draft picks (only the 4 non-playoff teams
 // participate) — these don't count toward the regular call-out rotation.
-// `rank` is the player's current consensus overall PPR rank, used by the
-// roster grid sort (K/DEF get artificial high numbers since they're not
-// individually ranked). `analysis` is real value commentary, researched and
-// written manually per pick — adjusted for the fact that this is an 8-team
-// league, not the 12-team default most fantasy tools assume. Tap "Analysis"
-// next to a player's name to see it.
+// `analysis` is real value commentary, researched and written manually per
+// pick (this is a static site, so it can't call out to Claude live) — adjusted
+// for the fact that this is an 8-team league, not the 12-team default most
+// fantasy tools assume. Tap "Analysis" next to a player's name to see it.
 const picks = [
   {
     callout: "Chad",
@@ -993,6 +994,56 @@ const picks = [
     winner: "Scottie",
     amount: 3,
     analysis: "A reliable, accurate leg on a high-powered Los Angeles offense that should generate plenty of scoring chances behind Justin Herbert. Kicker is the ultimate replacement-level position in an 8-team league, so $3 for a proven, above-average leg is a fine price — not a spot worth overthinking."
+  },
+  {
+    callout: "Scottie",
+    player: "Jacksonville Jaguars D",
+    pos: "DEF",
+    team: "JAX",
+    rank: 405,
+    winner: "Scottie",
+    amount: 2,
+    analysis: "Jacksonville's defense has taken a real step forward this season behind added pass-rush talent and a deeper secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, so $2 for a unit with real sneaky upside is a fine, low-cost swing."
+  },
+  {
+    callout: "Powers",
+    player: "Travis Etienne Jr.",
+    pos: "RB",
+    team: "NO",
+    rank: 32,
+    winner: "Powers",
+    amount: 8,
+    analysis: "Ranked 32nd overall (RB17) in current PPR consensus — a proven three-down back with real receiving chops throughout his career, now with a clean bell-cow opportunity. That's outside the true elite tier gone earlier this auction, but a legitimate weekly RB2 with real target share. $8 is a fair price for that kind of proven role; the swing risk is snap competition, not talent."
+  },
+  {
+    callout: "Aric",
+    player: "Bhayshul Tuten",
+    pos: "RB",
+    team: "JAX",
+    rank: 49,
+    winner: "Jeremy",
+    amount: 5,
+    analysis: "Ranked 49th overall (RB22) in current PPR consensus — an explosive rookie change-of-pace back who's carved out real touches in a crowded Jacksonville backfield. That's outside the true elite tier, but a legitimate flex/RB3 with real big-play upside. $5 is a fair speculative price for that kind of role; the swing risk is touch competition, not talent."
+  },
+  {
+    callout: "Jeremy",
+    player: "Jason Myers",
+    pos: "K",
+    team: "SEA",
+    rank: 406,
+    winner: "Jeremy",
+    amount: 1,
+    analysis: "A steady, high-volume leg on a Seattle offense that's generated real scoring chances the last several seasons. Kicker is the ultimate replacement-level position in an 8-team league, so $1 is about as cheap as it gets for a proven weekly starter — not a spot worth overthinking."
+  },
+  {
+    callout: "Chad",
+    player: "Cam Little",
+    pos: "K",
+    team: "JAX",
+    rank: 407,
+    winner: "Chad",
+    amount: 1,
+    analysis: "A strong-legged, high-upside kicker on an improving Jacksonville offense. Kicker is the ultimate replacement-level position in an 8-team league, so $1 is a trivial price for a locked-in weekly starter — not a spot worth overthinking."
   }
 ];
 
