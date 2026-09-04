@@ -1104,6 +1104,81 @@ const picks = [
     winner: "Chad",
     amount: 10,
     analysis: "Ranked 67th overall (WR25) in current PPR consensus — a big-bodied, high-draft-capital receiver who's grown into a real target share as Chicago's passing offense modernized around him. That's outside the elite tier gone earlier this auction, but a legitimate weekly flex/WR3 with real upside if the offense keeps clicking. $10 is a fair price for that kind of proven-but-not-yet-elite role; the swing risk is target competition, not talent."
+  },
+  {
+    callout: "Jeremy",
+    player: "Seattle Seahawks D",
+    pos: "DEF",
+    team: "SEA",
+    rank: 409,
+    winner: "Jeremy",
+    amount: 4,
+    analysis: "Seattle's defense has been a steady, opportunistic unit behind a disruptive front and a ball-hawking secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, so $4 for a genuinely solid unit is a fine, low-cost swing."
+  },
+  {
+    callout: "Chad",
+    player: "Denver Broncos D",
+    pos: "DEF",
+    team: "DEN",
+    rank: 410,
+    winner: "Michael",
+    amount: 7,
+    analysis: "Denver's defense has quietly been one of the most disruptive units in the league behind an elite pass rush and aggressive scheme. Defense is the ultimate streaming/replaceable position in an 8-team league, so $7 is a bit pricier than most D streams, but it's still a small fraction of the cap for a genuinely top-tier unit."
+  },
+  {
+    callout: "Tarry",
+    player: "Matthew Stafford",
+    pos: "QB",
+    team: "LAR",
+    rank: 97,
+    winner: "Elian",
+    amount: 6,
+    analysis: "Ranked 97th overall (QB13) in current PPR consensus — a proven, accurate veteran passer entering another season in a high-powered Rams offense. That's a real streaming/QB2 profile rather than a true difference-maker, but $6 is a fair price for that kind of consistent weekly floor; the swing risk is age-related durability, not talent or the surrounding cast."
+  },
+  {
+    callout: "Elian",
+    player: "Luther Burden III",
+    pos: "WR",
+    team: "CHI",
+    rank: 77,
+    winner: "Chad",
+    amount: 11,
+    analysis: "Ranked 77th overall (WR30) in current PPR consensus — a former 2nd-round pick who closed his rookie season strong, including an 8-catch, 138-yard game in Week 17, as Chicago's passing offense modernized around him. That's a real breakout candidate rather than a proven weekly starter yet, but $11 is a fair speculative price for that kind of ascending role; the swing risk is target competition within a crowded Bears receiving corps, not talent."
+  },
+  {
+    callout: "Scottie",
+    player: "DK Metcalf",
+    pos: "WR",
+    team: "PIT",
+    rank: 68,
+    winner: "Scottie",
+    amount: 3,
+    analysis: "Ranked 68th overall (WR26) in current PPR consensus — a big-bodied, downfield threat who posted a solid first season in Pittsburgh (59 catches, 850 yards, 6 TDs). That's outside the elite tier but a legitimate weekly flex/WR3 with real upside; the swing risk is a lingering minor injury that's cost him August reps, not talent or role."
+  },
+  {
+    callout: "Michael",
+    player: "Passed",
+    pos: "\u2014",
+    team: "\u2014",
+    passed: true
+  },
+  {
+    callout: "Powers",
+    player: "Sam LaPorta",
+    pos: "TE",
+    team: "DET",
+    rank: 82,
+    winner: "Michael",
+    amount: 13,
+    analysis: "Ranked 82nd overall (TE8) in current PPR consensus — a proven, high-target-share tight end who's been a real focal point in Detroit's offense since his rookie breakout. That's outside the elite TE tier gone earlier this auction, but a legitimate TE1/2 with real weekly-starter floor. $13 is a fair price for that kind of proven target share, especially in Michael's tight cap situation; the swing risk is target competition within a stacked Lions offense, not talent."
+  },
+  {
+    callout: "Aric",
+    player: "Quinshon Judkins",
+    pos: "RB",
+    team: "CLE",
+    rank: 37,
+    bids: { Aric: 3, Jeremy: "out", Elian: "out" }
   }
 ];
 
@@ -1309,21 +1384,26 @@ rosterOwners.forEach(owner => {
 picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
-  { player: "Jalen Hurts", pos: "QB", team: "PHI" },
-  { player: "Harold Fannin Jr.", pos: "TE", team: "CLE" },
-  { player: "Bhayshul Tuten", pos: "RB", team: "JAX" },
   { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
   { player: "Justin Herbert", pos: "QB", team: "LAC" },
   { player: "Tony Pollard", pos: "RB", team: "TEN" },
   { player: "Rhamondre Stevenson", pos: "RB", team: "NE" },
   { player: "TreVeyon Henderson", pos: "RB", team: "NE" },
-  { player: "Rome Odunze", pos: "WR", team: "CHI" },
-  { player: "DK Metcalf", pos: "WR", team: "PIT" },
   { player: "Kenneth Gainwell", pos: "RB", team: "TB" },
   { player: "Jaxson Dart", pos: "QB", team: "NYG" },
   { player: "Jaylen Warren", pos: "RB", team: "PIT" },
   { player: "Marvin Harrison Jr.", pos: "WR", team: "ARI" },
-  { player: "Jonathon Brooks", pos: "RB", team: "CAR" }
+  { player: "Jonathon Brooks", pos: "RB", team: "CAR" },
+  { player: "Trevor Lawrence", pos: "QB", team: "JAX" },
+  { player: "Parker Washington", pos: "WR", team: "JAX" },
+  { player: "Jameson Williams", pos: "WR", team: "DET" },
+  { player: "Rachaad White", pos: "RB", team: "WSH" },
+  { player: "Sam LaPorta", pos: "TE", team: "DET" },
+  { player: "Aaron Jones Sr.", pos: "RB", team: "MIN" },
+  { player: "Stefon Diggs", pos: "WR", team: "WSH" },
+  { player: "Tucker Kraft", pos: "TE", team: "GB" },
+  { player: "Jake Ferguson", pos: "TE", team: "DAL" },
+  { player: "Jakobi Meyers", pos: "WR", team: "JAX" }
 ];
 
 const availListEl = document.getElementById('availList');
