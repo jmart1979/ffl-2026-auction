@@ -583,7 +583,7 @@ const keepersData = {
 // auction along ("I'm out on RB", etc.) and has nothing to do with dollars.
 // Manually maintained; empty for everyone until someone declares out.
 const outPositions = {
-  Aric: [], Chad: [], Elian: [], Jeremy: [],
+  Aric: [], Chad: ["QB", "RB", "WR", "TE", "K", "DEF"], Elian: [], Jeremy: [],
   Michael: [], Powers: [], Scottie: [], Tarry: []
 };
 
@@ -1178,7 +1178,29 @@ const picks = [
     pos: "RB",
     team: "CLE",
     rank: 37,
-    bids: { Aric: 3, Jeremy: "out", Elian: "out" }
+    winner: "Chad",
+    amount: 6,
+    analysis: "Ranked 37th overall (RB18) in current PPR consensus — a powerful, downhill runner who's emerged as Cleveland's clear early-down and goal-line back. That's outside the true elite tier gone earlier this auction, but a legitimate weekly RB2 with real touchdown equity. $6 is a fair price for that kind of proven role; the swing risk is passing-down competition, not talent."
+  },
+  {
+    callout: "Jeremy",
+    player: "Tucker Kraft",
+    pos: "TE",
+    team: "GB",
+    rank: 88,
+    winner: "Chad",
+    amount: 9,
+    analysis: "Ranked 88th overall (TE9) in current PPR consensus — was the overall TE2 in fantasy scoring behind only Trey McBride before an ACL tear ended his 2025 season in Week 9. He's on track for Week 1 and looked fully healthy in camp, so this is a real buy-low on a proven top-3 talent at a scarce position. $9 is a fair price for that kind of upside; the swing risk is snap-count management early in the year as Green Bay eases him back."
+  },
+  {
+    callout: "Chad",
+    player: "Philadelphia Eagles D",
+    pos: "DEF",
+    team: "PHI",
+    rank: 411,
+    winner: "Chad",
+    amount: 3,
+    analysis: "Philadelphia's defense was a top-7 unit last year and only got stronger, adding Jonathan Greenard and Riq Woolen to an already loaded pass rush and secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, but this is a genuinely elite unit — $3 is a clear bargain, and a fitting way to close out a stacked auction."
   }
 ];
 
@@ -1398,10 +1420,8 @@ const top10Pool = [
   { player: "Parker Washington", pos: "WR", team: "JAX" },
   { player: "Jameson Williams", pos: "WR", team: "DET" },
   { player: "Rachaad White", pos: "RB", team: "WSH" },
-  { player: "Sam LaPorta", pos: "TE", team: "DET" },
   { player: "Aaron Jones Sr.", pos: "RB", team: "MIN" },
   { player: "Stefon Diggs", pos: "WR", team: "WSH" },
-  { player: "Tucker Kraft", pos: "TE", team: "GB" },
   { player: "Jake Ferguson", pos: "TE", team: "DAL" },
   { player: "Jakobi Meyers", pos: "WR", team: "JAX" }
 ];
