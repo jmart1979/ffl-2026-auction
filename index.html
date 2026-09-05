@@ -1201,6 +1201,36 @@ const picks = [
     winner: "Chad",
     amount: 3,
     analysis: "Philadelphia's defense was a top-7 unit last year and only got stronger, adding Jonathan Greenard and Riq Woolen to an already loaded pass rush and secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, but this is a genuinely elite unit — $3 is a clear bargain, and a fitting way to close out a stacked auction."
+  },
+  {
+    callout: "Tarry",
+    player: "Chuba Hubbard",
+    pos: "RB",
+    team: "CAR",
+    rank: 65,
+    winner: "Tarry",
+    amount: 1,
+    analysis: "Ranked 65th overall (RB28) in current PPR consensus — Carolina's clear early-down and short-yardage back with a real path to lead-back touches given the questions around the rest of the Panthers' backfield. That's outside the true elite tier, but a legitimate flex/RB3 with real workload. $1 is an absolute steal for that kind of proven role; the swing risk is a committee approach if Carolina adds competition, not talent."
+  },
+  {
+    callout: "Michael",
+    player: "Brian Thomas Jr.",
+    pos: "WR",
+    team: "JAX",
+    rank: 107,
+    winner: "Aric",
+    amount: 3,
+    analysis: "Ranked 107th overall (WR43) in current PPR consensus after a disappointing sophomore slide behind a crowded Jacksonville receiver room (Travis Hunter, Jakobi Meyers, Parker Washington). That's a deep bench/flex profile rather than a proven weekly starter right now, but he's flashed real chemistry with Trevor Lawrence in camp and still has the size-speed profile that made him a 1,282-yard rookie. $3 is a fair speculative price for that kind of buy-low upside; the swing risk is target competition in a crowded room, not talent."
+  },
+  {
+    callout: "Elian",
+    player: "Parker Washington",
+    pos: "WR",
+    team: "JAX",
+    rank: 78,
+    winner: "Elian",
+    amount: 5,
+    analysis: "Ranked 78th overall (WR31) in current PPR consensus — a quietly efficient possession receiver who actually outproduced his expected fantasy points last season in a crowded Jacksonville room. That's a deep bench/flex profile rather than a true difference-maker, but $5 is a fair price for that kind of proven efficiency; the swing risk is target competition from Travis Hunter and Brian Thomas Jr., not talent."
   }
 ];
 
@@ -1406,7 +1436,6 @@ rosterOwners.forEach(owner => {
 picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
-  { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
   { player: "Justin Herbert", pos: "QB", team: "LAC" },
   { player: "Tony Pollard", pos: "RB", team: "TEN" },
   { player: "Rhamondre Stevenson", pos: "RB", team: "NE" },
@@ -1417,7 +1446,6 @@ const top10Pool = [
   { player: "Marvin Harrison Jr.", pos: "WR", team: "ARI" },
   { player: "Jonathon Brooks", pos: "RB", team: "CAR" },
   { player: "Trevor Lawrence", pos: "QB", team: "JAX" },
-  { player: "Parker Washington", pos: "WR", team: "JAX" },
   { player: "Jameson Williams", pos: "WR", team: "DET" },
   { player: "Rachaad White", pos: "RB", team: "WSH" },
   { player: "Aaron Jones Sr.", pos: "RB", team: "MIN" },
