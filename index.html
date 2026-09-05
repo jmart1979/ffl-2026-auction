@@ -251,28 +251,6 @@
   td.folded { color: #bbb; }
   td.filled { font-weight: 600; background: #f3f8ff; color: #1a1a1a; }
 
-  .analysis-btn {
-    background: none;
-    border: none;
-    color: #2f6fed;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0;
-    margin-left: 6px;
-    font-family: inherit;
-    white-space: nowrap;
-  }
-  tr.analysis-row td {
-    text-align: left;
-    background: #f5f8ff;
-    font-size: 12px;
-    line-height: 1.5;
-    color: #444;
-    padding: 10px 14px;
-  }
-  tr.analysis-row.hidden { display: none; }
-
   .tab-two-col {
     display: grid;
     grid-template-columns: 1fr 280px;
@@ -466,7 +444,6 @@
   </div>
 
   <h2>Auction Log</h2>
-  <div class="order-note">Tap &ldquo;Analysis&rdquo; next to a player for real value context, adjusted for this 8-team league.</div>
   <table id="logTable">
     <thead><tr id="logHeader"></tr></thead>
     <tbody></tbody>
@@ -498,14 +475,6 @@ function showTab(tab) {
   document.getElementById('rostersTab').style.display = tab === 'rosters' ? '' : 'none';
   document.getElementById('tabAuctionBtn').classList.toggle('active', tab === 'auction');
   document.getElementById('tabRostersBtn').classList.toggle('active', tab === 'rosters');
-}
-
-function toggleAnalysis(idx) {
-  const row = document.getElementById('analysis-row-' + idx);
-  const btn = document.getElementById('analysis-btn-' + idx);
-  if (!row) return;
-  const isHidden = row.classList.toggle('hidden');
-  if (btn) btn.textContent = isHidden ? 'Analysis \u25BE' : 'Hide analysis \u25B4';
 }
 
 const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
@@ -592,10 +561,9 @@ const outPositions = {
 // (has a `bids` map of owner -> number (current high bid) or "out").
 // `draft: true` marks rookie-draft picks (only the 4 non-playoff teams
 // participate) — these don't count toward the regular call-out rotation.
-// `analysis` is real value commentary, researched and written manually per
-// pick (this is a static site, so it can't call out to Claude live) — adjusted
-// for the fact that this is an 8-team league, not the 12-team default most
-// fantasy tools assume. Tap "Analysis" next to a player's name to see it.
+// `rank` is the player's current consensus overall PPR rank, used by the
+// roster grid sort and the Power Rankings (K/DEF get artificial high
+// numbers since they aren't individually ranked).
 const picks = [
   {
     callout: "Chad",
@@ -605,8 +573,7 @@ const picks = [
     rank: 20,
     draft: true,
     winner: "Chad",
-    amount: 11,
-    analysis: "Consensus RB11 with a rookie-season floor around 14 PPG based on how every top-5 drafted RB since 2012 has performed. That's an elite-tier profile, and elite tier is exactly what holds its value in an 8-team league — $11 is a clear bargain even with Tyler Allgeier and James Conner clouding his early touches in Arizona."
+    amount: 11
   },
   {
     callout: "Tarry",
@@ -616,8 +583,7 @@ const picks = [
     rank: 51,
     draft: true,
     winner: "Tarry",
-    amount: 10,
-    analysis: "Landed the No. 1 WR job in Tennessee as the 4th overall pick, but redraft consensus still has him fringe WR2/3 (ESPN's Top 300 ranks him 51st overall, 25th at the position) given Cam Ward's unproven passing offense. In an 8-team league that tier dilutes fastest — with only 24 league-wide starting WR spots, a back-end WR2 is closer to replacement level than the draft capital suggests. $10 pays for the ceiling, not the current floor."
+    amount: 10
   },
   {
     callout: "Michael",
@@ -627,8 +593,7 @@ const picks = [
     rank: 54,
     draft: true,
     winner: "Michael",
-    amount: 11,
-    analysis: "A committee back on paper — sharing camp reps with George Holani and Emanuel Wilson — until Zach Charbonnet's torn ACL reopened the lead-back job. RotoWire and PFN both peg him as a fringe RB2/3 (~RB26 ADP) that would be a top-20 back without the Charbonnet question mark. $11 is a sensible speculative price for a real shot at volume, but the workload isn't locked in yet."
+    amount: 11
   },
   {
     callout: "Elian",
@@ -645,8 +610,7 @@ const picks = [
     team: "SF",
     rank: 3,
     winner: "Elian",
-    amount: 58,
-    analysis: "Ranked 3rd overall in current PPR consensus (Field Yates, Aug 21 2026) — the clearest true elite-tier asset in this whole auction. That top-5-overall tier is exactly where value translates directly in an 8-team league, since every team wants a workhorse RB1 and there's no depth to fall back on. $58 eats nearly 30% of the cap, but paying up for a consensus top-3 player is defensible when the alternative dollars would otherwise go toward replacement-level depth that's nearly free in a league this shallow. The real risk is health given his recent injury history, not talent or role."
+    amount: 58
   },
   {
     callout: "Tarry",
@@ -655,8 +619,7 @@ const picks = [
     team: "BAL",
     rank: 11,
     winner: "Scottie",
-    amount: 19,
-    analysis: "Ranked 11th overall in the same current PPR consensus — still comfortably inside the true elite tier despite entering his age-32 season. Baltimore's offensive line keeps his workhorse role and floor high, and in an 8-team league that top-12-overall profile holds its value directly. $19 for a top-12 talent is one of the better values of the auction so far; the medium-term risk is a sudden age-driven decline rather than anything specific to 2026."
+    amount: 19
   },
   {
     callout: "Michael",
@@ -665,8 +628,7 @@ const picks = [
     team: "MIN",
     rank: 12,
     winner: "Elian",
-    amount: 41,
-    analysis: "Ranked 12th overall (WR5) in the same current PPR consensus — a clear top-15 asset and one of the most complete WR1s in the league when right. That elite tier holds its value directly in an 8-team league; receiver is deep enough overall that a true top-15 difference-maker still stands well apart from the replaceable tier just below him. $41 is a big number, but it's proportionate to what's already gone this auction (McCaffrey $58, Henry $19) and buys a genuine top-15 piece rather than mid-tier WR2 risk. The swing factor is availability given some injury history, not talent or target share."
+    amount: 41
   },
   {
     callout: "Elian",
@@ -675,8 +637,7 @@ const picks = [
     team: "CIN",
     rank: 74,
     winner: "Michael",
-    amount: 20,
-    analysis: "Ranked QB8 (74th overall) in the strict current consensus, though several other outlets have him higher on a per-game basis — QB3 in 2024 at 22.5 PPG before injuries limited him to 8 games in 2025. That split matters in an 8-team league: with only 8 starting QB spots needed league-wide, replacement-level QB play is much easier to find here than at RB or WR, so $20 on a quarterback — even a talented one — is more of an allocation call than a clear value win. Ja'Marr Chase, Tee Higgins, and a shootout-prone defense give him a real top-5 ceiling when healthy; the swing risk is durability, having missed real time in two of the last three seasons."
+    amount: 20
   },
   {
     callout: "Scottie",
@@ -685,8 +646,7 @@ const picks = [
     team: "PHI",
     rank: 21,
     winner: "Michael",
-    amount: 27,
-    analysis: "Ranked 21st overall in current PPR consensus — after a historic 2024 with the Eagles (2,000+ rushing yards, a Super Bowl run), he's firmly in the RB1 tier even allowing for some normal regression. That top-25-overall profile is real value in an 8-team league, since every team needs a workhorse back and the position thins out fast beyond this tier. $27 is a fair price for a true RB1, especially with McCaffrey and Henry already going for more with less proven recent volume; Philadelphia's offensive line and his league-leading efficiency give him both a real floor and a real ceiling."
+    amount: 27
   },
   {
     callout: "Powers",
@@ -695,8 +655,7 @@ const picks = [
     team: "NE",
     rank: 26,
     winner: "Tarry",
-    amount: 26,
-    analysis: "Ranked 26th overall in the same current PPR consensus — a proven true WR1 now anchoring a retooled Patriots passing offense. That top-30-overall profile still comfortably clears the elite-tier bar in an 8-team league, where locking in a real target-share monster matters more than the specific team context. $26 is reasonable relative to what's already gone this auction (Jefferson $41, Barkley $27) for a legitimate WR1 role, though New England's offensive situation carries more uncertainty than the perennial contenders already off the board."
+    amount: 26
   },
   {
     callout: "Aric",
@@ -705,8 +664,7 @@ const picks = [
     team: "HOU",
     rank: 39,
     winner: "Powers",
-    amount: 25,
-    analysis: "Ranked 39th overall in current PPR consensus — a legitimate No. 1 receiver in Houston who benefits any time C.J. Stroud is healthy and slinging volume his way. That's a step below the true elite tier gone earlier this auction (Jefferson, Barkley, A.J. Brown), but still comfortably above replacement level in an 8-team league. $25 is a fair price for a real WR1 role; the main swing factor is Houston's passing-game health rather than Collins' own target share."
+    amount: 25
   },
   {
     callout: "Jeremy",
@@ -715,8 +673,7 @@ const picks = [
     team: "NYG",
     rank: 25,
     winner: "Scottie",
-    amount: 23,
-    analysis: "Ranked 25th overall in current PPR consensus — a true target-share monster already an established WR1 in New York despite shaky quarterback play. That top-30-overall profile clears the elite-tier bar in an 8-team league even accounting for some game-script risk. $23 is a fair price for a legitimate high-volume receiver; the offense's overall competence is the main swing factor rather than Nabers' own role or talent."
+    amount: 23
   },
   {
     callout: "Chad",
@@ -725,8 +682,7 @@ const picks = [
     team: "MIA",
     rank: 8,
     winner: "Tarry",
-    amount: 32,
-    analysis: "Ranked 8th overall in current PPR consensus — arguably the most explosive receiving back in the league, with real bell-cow upside inside Miami's offense even though the Dolphins have a history of committee usage. That top-10 profile is textbook elite tier for an 8-team league, where a difference-maker at this level is nearly impossible to replace off the wire. $32 is a big chunk of Tarry's cap, but it's in line with what other top-10 assets have gone for this auction (McCaffrey $58, Jefferson $41); the swing risk is snap-share consistency, not talent."
+    amount: 32
   },
   {
     callout: "Tarry",
@@ -735,8 +691,7 @@ const picks = [
     team: "CIN",
     rank: 14,
     winner: "Powers",
-    amount: 28,
-    analysis: "Ranked 14th overall in current PPR consensus — the clear lead back in Cincinnati's offense with a real 3-down role. That top-15-overall profile still comfortably clears the elite bar in an 8-team league. $28 is a fair price relative to other top-15 assets sold this auction, most of which have gone for $30 or more; the real risk is snap-share if Cincinnati ever leans on a committee, not talent or opportunity."
+    amount: 28
   },
   {
     callout: "Michael",
@@ -745,8 +700,7 @@ const picks = [
     team: "LAR",
     rank: 31,
     winner: "Tarry",
-    amount: 23,
-    analysis: "Ranked 32nd overall in current PPR consensus — a proven three-down role in the Rams' offense with real goal-line usage. That's outside the true elite tier gone earlier this auction, but still a legitimate weekly RB2 with paths to more. $23 is fair value for a locked-in workload, even if the ceiling is capped some weeks by Sean McVay's committee tendencies in obvious passing situations."
+    amount: 23
   },
   {
     callout: "Elian",
@@ -755,8 +709,7 @@ const picks = [
     team: "DAL",
     rank: 400,
     winner: "Michael",
-    amount: 4,
-    analysis: "One of the most accurate kickers in the league, anchoring a high-powered Dallas offense that should generate plenty of scoring chances. Kicker is the ultimate replacement-level position in an 8-team league, so $4 is a trivial percentage of the cap for a locked-in, above-average leg — this isn't a spot worth overpaying for, and Michael didn't."
+    amount: 4
   },
   {
     callout: "Scottie",
@@ -765,8 +718,7 @@ const picks = [
     team: "KC",
     rank: 15,
     winner: "Michael",
-    amount: 30,
-    analysis: "Ranked 15th overall in current PPR consensus — a proven early-down and red-zone role in a run-heavy offense. That top-15 profile comfortably clears the elite bar in an 8-team league. $30 is a real price, but it's proportionate to other top-15 backs already sold this auction (Chase Brown $28, De'Von Achane $32); the swing risk is game-script if the offense leans pass-heavy, not talent or role."
+    amount: 30
   },
   {
     callout: "Powers",
@@ -775,8 +727,7 @@ const picks = [
     team: "WSH",
     rank: 40,
     winner: "Tarry",
-    amount: 5,
-    analysis: "Ranked around 40th overall in current PPR consensus — a rising dual-threat QB1 who's already shown flashes of a real ceiling behind a competent Washington offense. That's well outside the true elite QB tier gone earlier this auction (Burrow $20), but $5 is a near-free speculative price for legitimate weekly QB1 upside in an 8-team league, where replacement-level QB play is easy to find anyway. The swing factor is durability and a still-developing supporting cast, not talent."
+    amount: 5
   },
   {
     callout: "Aric",
@@ -785,8 +736,7 @@ const picks = [
     team: "NYJ",
     rank: 34,
     winner: "Chad",
-    amount: 21,
-    analysis: "Ranked 34th overall in current PPR consensus — a true target hog even on a rebuilding Jets offense. That's outside the elite top-30 tier gone earlier this auction, but still comfortably above replacement level in an 8-team league. $21 is a fair price for a legitimate high-target-share receiver; the main swing risk is quarterback play in New York, not talent or role."
+    amount: 21
   },
   {
     callout: "Jeremy",
@@ -795,8 +745,7 @@ const picks = [
     team: "DEN",
     rank: 44,
     winner: "Elian",
-    amount: 11,
-    analysis: "Ranked 44th overall (WR19) in current PPR consensus, now catching passes in Denver after an offseason trade. That's outside the elite top-30 tier gone earlier this auction, but still a legitimate low-end WR2 with real speed and target volume. $11 is a fair price for a proven route-runner in a new offense; the main swing factor is chemistry and target competition in Denver, not raw talent."
+    amount: 11
   },
   {
     callout: "Chad",
@@ -805,8 +754,7 @@ const picks = [
     team: "BUF",
     rank: 72,
     winner: "Chad",
-    amount: 15,
-    analysis: "Ranked 72nd overall (WR27) in current PPR consensus after a rough 2025 in Chicago, but now catches passes from Josh Allen in Buffalo as the presumptive WR1 with far less target competition. That's a real WR3/flex profile in an 8-team league rather than a true difference-maker, but $15 is a fair bounce-back bet given the clear opportunity upgrade; the swing risk is whether last year's decline was age-related or offense-driven."
+    amount: 15
   },
   {
     callout: "Tarry",
@@ -815,8 +763,7 @@ const picks = [
     team: "NYJ",
     rank: 30,
     winner: "Jeremy",
-    amount: 20,
-    analysis: "Ranked 31st overall in current PPR consensus — a true three-down role for the Jets with real receiving work built in. That's outside the true elite tier gone earlier this auction, but still a legitimate weekly RB2 with a real receiving floor as a safety net. $20 is a fair price for a locked-in workhorse role, even with some questions about the Jets' overall offensive competence capping the ceiling."
+    amount: 20
   },
   {
     callout: "Michael",
@@ -825,8 +772,7 @@ const picks = [
     team: "SF",
     rank: 64,
     winner: "Michael",
-    amount: 9,
-    analysis: "Ranked 64th overall (TE7) in current PPR consensus — a proven high-floor TE1 who's been one of the most consistent producers at the position for years. That's outside the elite skill-position tiers, but a real difference-maker at a spot where replacement level falls off fast even in an 8-team league. $9 is a fair price for a locked-in weekly starter at a scarce position."
+    amount: 9
   },
   {
     callout: "Elian",
@@ -835,8 +781,7 @@ const picks = [
     team: "HOU",
     rank: 401,
     winner: "Elian",
-    amount: 3,
-    analysis: "Houston's defense has been a top-tier unit the last two seasons behind a strong pass rush and opportunistic secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, so $3 for a genuinely good unit is exactly the kind of bargain worth locking in rather than chasing matchups off the wire every week."
+    amount: 3
   },
   {
     callout: "Scottie",
@@ -852,8 +797,7 @@ const picks = [
     team: "CHI",
     rank: 35,
     winner: "Powers",
-    amount: 32,
-    analysis: "Ranked 35th overall (TE3) in current PPR consensus — a true difference-maker who was the overall TE2 in fantasy scoring from Week 9 on as a rookie, behind only Trey McBride. That's a legitimate top-3 tight end profile, a genuinely scarce commodity in an 8-team league. $32 is a real price, but it's proportionate to what elite skill-position pieces have gone for all auction; the swing risk is target competition if Chicago's passing game shifts, not talent."
+    amount: 32
   },
   {
     callout: "Aric",
@@ -862,8 +806,7 @@ const picks = [
     team: "LAC",
     rank: 51,
     winner: "Chad",
-    amount: 14,
-    analysis: "Ranked 51st overall (WR21) in current PPR consensus — the clear No. 1 receiver for Justin Herbert now that Keenan Allen is gone, with real target-hog upside even after an uneven 2025. That's outside the elite tier but a legitimate weekly WR2/3 with a real path to more. $14 is a fair price for a proven high-target role; the swing risk is last year's week-to-week inconsistency (outside the top 36 receivers in eight different weeks), not talent or opportunity."
+    amount: 14
   },
   {
     callout: "Jeremy",
@@ -872,8 +815,7 @@ const picks = [
     team: "LAR",
     rank: 50,
     winner: "Scottie",
-    amount: 7,
-    analysis: "Ranked 50th overall (WR20) in current PPR consensus — still a sharp route-runner and red-zone threat even in the twilight of his career, now with a strong supporting cast in Los Angeles. That's outside the elite tier, but a legitimate weekly WR2/3 floor for next to nothing. $7 is a near-throwaway price for that kind of proven production; the swing risk is age-driven workload management, not talent."
+    amount: 7
   },
   {
     callout: "Chad",
@@ -882,8 +824,7 @@ const picks = [
     team: "NE",
     rank: 48,
     winner: "Chad",
-    amount: 10,
-    analysis: "Ranked 48th overall (QB4) in current PPR consensus — a genuine breakout sophomore passer as New England's offense modernized around him. That's a real QB1 profile at a fraction of what other starting quarterbacks have gone for this auction (Burrow $20). $10 is a fair, even light, price for legitimate weekly-starter upside; the swing risk is a tougher sophomore-slump slate or regression, not talent."
+    amount: 10
   },
   {
     callout: "Tarry",
@@ -892,8 +833,7 @@ const picks = [
     team: "CHI",
     rank: 38,
     winner: "Chad",
-    amount: 10,
-    analysis: "Ranked 45th overall (RB20) in current PPR consensus — a proven early-down role in Chicago's offense with real receiving work mixed in. That's outside the true elite tier gone earlier this auction, but a legitimate weekly flex/RB3 with upside if the backfield sorts itself out. $10 is a fair price for that kind of proven role; the swing risk is a crowded backfield, not talent."
+    amount: 10
   },
   {
     callout: "Michael",
@@ -902,8 +842,7 @@ const picks = [
     team: "LAR",
     rank: 402,
     winner: "Michael",
-    amount: 6,
-    analysis: "The Rams' defense has quietly become one of the more disruptive units in the league, generating a real pass rush and takeaways behind a strong front seven. Defense is the ultimate streaming/replaceable position in an 8-team league, so $6 for a genuinely competitive unit is a fine price; the real risk is matchup-to-matchup week volatility inherent to the position, not talent."
+    amount: 6
   },
   {
     callout: "Elian",
@@ -912,8 +851,7 @@ const picks = [
     team: "DAL",
     rank: 89,
     winner: "Elian",
-    amount: 8,
-    analysis: "Ranked 89th overall (QB10) in current PPR consensus — a proven, high-volume passer who finished as the overall QB6 in points last year behind one of the league's best supporting casts (CeeDee Lamb, George Pickens). That's a real streaming/QB2 profile rather than a true difference-maker, but $8 is a fair price for that kind of consistent volume; the swing risk is touchdown regression or health, not talent or role."
+    amount: 8
   },
   {
     callout: "Scottie",
@@ -922,8 +860,7 @@ const picks = [
     team: "ATL",
     rank: 58,
     winner: "Scottie",
-    amount: 8,
-    analysis: "Ranked 58th overall (TE6) in current PPR consensus — a former top-5 pick still searching for a real breakout in Atlanta's crowded passing offense, but flashes of elite athletic upside remain. That's outside the true elite TE tier, but a legitimate TE1/2 with real ceiling if the target competition thins out. $8 is a fair speculative price for that kind of talent at a scarce position; the swing risk is target share, not physical ability."
+    amount: 8
   },
   {
     callout: "Elian",
@@ -932,8 +869,7 @@ const picks = [
     team: "NYG",
     rank: 45,
     winner: "Elian",
-    amount: 10,
-    analysis: "Ranked 45th overall (RB20) in current PPR consensus — a physical, punishing runner who emerged as a real complementary piece in New York's backfield as a rookie. That's outside the true elite tier but a legitimate flex/RB3 with real goal-line and short-yardage value. $10 is a fair price for that kind of proven role; the swing risk is snap competition in a crowded Giants backfield, not talent."
+    amount: 10
   },
   {
     callout: "Michael",
@@ -942,8 +878,7 @@ const picks = [
     team: "TB",
     rank: 47,
     winner: "Michael",
-    amount: 9,
-    analysis: "Ranked 47th overall (RB21) in current PPR consensus — a genuine three-down back who broke out as Tampa Bay's clear lead ballcarrier. That's outside the elite tier but a legitimate flex/RB3 with real workload; $9 is a fair price for that kind of proven role, though touchdown competition in a crowded red-zone offense caps some of the ceiling."
+    amount: 9
   },
   {
     callout: "Powers",
@@ -952,8 +887,7 @@ const picks = [
     team: "WSH",
     rank: 60,
     winner: "Powers",
-    amount: 7,
-    analysis: "Ranked 60th overall (WR23) in current PPR consensus after a rough, injury-shortened 2025 — he's still Washington's clear No. 1 receiver with Jayden Daniels back healthy and minimal target competition. That's outside the elite tier, but real bounce-back upside given his career-best per-route efficiency last year despite the down box score. $7 is a near-throwaway price for that kind of talent; the swing risk is health, not role or ability."
+    amount: 7
   },
   {
     callout: "Powers",
@@ -962,8 +896,7 @@ const picks = [
     team: "HOU",
     rank: 403,
     winner: "Powers",
-    amount: 2,
-    analysis: "A steady, accurate leg on a Houston offense that should generate real scoring chances behind a strong defense and improving passing attack. Kicker is the ultimate replacement-level position in an 8-team league, so $2 is a trivial percentage of the cap for a reliable weekly starter — not a spot worth overthinking."
+    amount: 2
   },
   {
     callout: "Tarry",
@@ -972,8 +905,7 @@ const picks = [
     team: "PHI",
     rank: 52,
     winner: "Jeremy",
-    amount: 5,
-    analysis: "Ranked 52nd overall (QB5) in current PPR consensus — a true dual-threat weapon with one of the highest rushing floors at the position, backed by a stacked Eagles offense and a Super Bowl-winning system. That's a real QB1 profile that's dipped slightly on touchdown-rate regression concerns after his historic 2022 pace, but the rushing floor alone keeps him firmly in weekly-starter territory. $5 is a real bargain for that kind of dual-threat upside; the swing risk is touchdown rate normalizing further, not his role or health."
+    amount: 5
   },
   {
     callout: "Michael",
@@ -982,8 +914,7 @@ const picks = [
     team: "CHI",
     rank: 105,
     winner: "Jeremy",
-    amount: 9,
-    analysis: "Ranked 105th overall (QB15) in current PPR consensus — a real dual-threat weapon showing a rising trajectory in year three under Ben Johnson, finishing as a top-10 fantasy signal-caller last season with real rushing juice (nearly 400 rushing yards, 3 rushing TDs). That's outside the true QB1 tier gone earlier this auction, but a legitimate streaming/QB2 profile with genuine breakout equity if his efficiency keeps trending up. $9 is a fair price for that kind of speculative dual-threat upside; the swing risk is accuracy and turnover regression, not talent or opportunity."
+    amount: 9
   },
   {
     callout: "Elian",
@@ -992,8 +923,7 @@ const picks = [
     team: "LAC",
     rank: 404,
     winner: "Scottie",
-    amount: 3,
-    analysis: "A reliable, accurate leg on a high-powered Los Angeles offense that should generate plenty of scoring chances behind Justin Herbert. Kicker is the ultimate replacement-level position in an 8-team league, so $3 for a proven, above-average leg is a fine price — not a spot worth overthinking."
+    amount: 3
   },
   {
     callout: "Scottie",
@@ -1002,8 +932,7 @@ const picks = [
     team: "JAX",
     rank: 405,
     winner: "Scottie",
-    amount: 2,
-    analysis: "Jacksonville's defense has taken a real step forward this season behind added pass-rush talent and a deeper secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, so $2 for a unit with real sneaky upside is a fine, low-cost swing."
+    amount: 2
   },
   {
     callout: "Powers",
@@ -1012,8 +941,7 @@ const picks = [
     team: "NO",
     rank: 32,
     winner: "Powers",
-    amount: 8,
-    analysis: "Ranked 32nd overall (RB17) in current PPR consensus — a proven three-down back with real receiving chops throughout his career, now with a clean bell-cow opportunity. That's outside the true elite tier gone earlier this auction, but a legitimate weekly RB2 with real target share. $8 is a fair price for that kind of proven role; the swing risk is snap competition, not talent."
+    amount: 8
   },
   {
     callout: "Aric",
@@ -1022,8 +950,7 @@ const picks = [
     team: "JAX",
     rank: 49,
     winner: "Jeremy",
-    amount: 5,
-    analysis: "Ranked 49th overall (RB22) in current PPR consensus — an explosive rookie change-of-pace back who's carved out real touches in a crowded Jacksonville backfield. That's outside the true elite tier, but a legitimate flex/RB3 with real big-play upside. $5 is a fair speculative price for that kind of role; the swing risk is touch competition, not talent."
+    amount: 5
   },
   {
     callout: "Jeremy",
@@ -1032,8 +959,7 @@ const picks = [
     team: "SEA",
     rank: 406,
     winner: "Jeremy",
-    amount: 1,
-    analysis: "A steady, high-volume leg on a Seattle offense that's generated real scoring chances the last several seasons. Kicker is the ultimate replacement-level position in an 8-team league, so $1 is about as cheap as it gets for a proven weekly starter — not a spot worth overthinking."
+    amount: 1
   },
   {
     callout: "Chad",
@@ -1042,8 +968,7 @@ const picks = [
     team: "JAX",
     rank: 407,
     winner: "Chad",
-    amount: 1,
-    analysis: "A strong-legged, high-upside kicker on an improving Jacksonville offense. Kicker is the ultimate replacement-level position in an 8-team league, so $1 is a trivial price for a locked-in weekly starter — not a spot worth overthinking."
+    amount: 1
   },
   {
     callout: "Tarry",
@@ -1052,8 +977,7 @@ const picks = [
     team: "CLE",
     rank: 53,
     winner: "Jeremy",
-    amount: 9,
-    analysis: "Ranked 53rd overall (TE5) in current PPR consensus — a highly productive rookie tight end who put up real receiving numbers behind a crowded but talented Cleveland pass-catching corps. That's outside the elite TE tier gone earlier this auction (Loveland, Pitts), but a legitimate TE1/2 with real target share and week-to-week upside. $9 is a fair speculative price for that kind of proven rookie production; the swing risk is target competition, not talent."
+    amount: 9
   },
   {
     callout: "Michael",
@@ -1062,8 +986,7 @@ const picks = [
     team: "DEN",
     rank: 87,
     winner: "Michael",
-    amount: 1,
-    analysis: "Ranked 87th overall (WR37) in current PPR consensus — a proven, physical red-zone threat who's been a real touchdown-scoring machine in Denver's offense the last two seasons. That's a deep-league/bench WR profile rather than a true difference-maker, but $1 is about as cheap as it gets for a locked-in starting role with real touchdown equity; the swing risk is target competition from Denver's other pass-catchers, not talent."
+    amount: 1
   },
   {
     callout: "Elian",
@@ -1072,8 +995,7 @@ const picks = [
     team: "LAR",
     rank: 408,
     winner: "Elian",
-    amount: 1,
-    analysis: "A dialed-in rookie kicker who took over the Rams' job midseason and never looked back — 92.3% on field goals with several clutch playoff makes, including a game-winning OT kick in the Divisional Round. Kicker is the ultimate replacement-level position in an 8-team league, so $1 is a trivial price for a proven, high-efficiency leg in one of the league's best offenses — not a spot worth overthinking."
+    amount: 1
   },
   {
     callout: "Scottie",
@@ -1082,8 +1004,7 @@ const picks = [
     team: "TB",
     rank: 85,
     winner: "Scottie",
-    amount: 1,
-    analysis: "Ranked 85th overall (WR35) in current PPR consensus — an established slot receiver who was off to an electric start before a severe 2024 ankle injury limited him through much of 2025. That's a deep bench/flex WR profile rather than a true difference-maker, but $1 is a near-free price for a player with real target-earning ability if he's fully healthy; the swing risk is durability, not talent."
+    amount: 1
   },
   {
     callout: "Powers",
@@ -1092,8 +1013,7 @@ const picks = [
     team: "SF",
     rank: 86,
     winner: "Michael",
-    amount: 6,
-    analysis: "Ranked 86th overall (WR36) in current PPR consensus — a six-time Pro Bowler now catching passes in a new offense after an offseason move. That's a deep bench/flex profile at this stage of his career rather than a true weekly starter, but $6 is a fair speculative price for a proven touchdown-scorer if he finds a real role; the swing risk is target competition and age-related decline, not talent."
+    amount: 6
   },
   {
     callout: "Aric",
@@ -1102,8 +1022,7 @@ const picks = [
     team: "CHI",
     rank: 67,
     winner: "Chad",
-    amount: 10,
-    analysis: "Ranked 67th overall (WR25) in current PPR consensus — a big-bodied, high-draft-capital receiver who's grown into a real target share as Chicago's passing offense modernized around him. That's outside the elite tier gone earlier this auction, but a legitimate weekly flex/WR3 with real upside if the offense keeps clicking. $10 is a fair price for that kind of proven-but-not-yet-elite role; the swing risk is target competition, not talent."
+    amount: 10
   },
   {
     callout: "Jeremy",
@@ -1112,8 +1031,7 @@ const picks = [
     team: "SEA",
     rank: 409,
     winner: "Jeremy",
-    amount: 4,
-    analysis: "Seattle's defense has been a steady, opportunistic unit behind a disruptive front and a ball-hawking secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, so $4 for a genuinely solid unit is a fine, low-cost swing."
+    amount: 4
   },
   {
     callout: "Chad",
@@ -1122,8 +1040,7 @@ const picks = [
     team: "DEN",
     rank: 410,
     winner: "Michael",
-    amount: 7,
-    analysis: "Denver's defense has quietly been one of the most disruptive units in the league behind an elite pass rush and aggressive scheme. Defense is the ultimate streaming/replaceable position in an 8-team league, so $7 is a bit pricier than most D streams, but it's still a small fraction of the cap for a genuinely top-tier unit."
+    amount: 7
   },
   {
     callout: "Tarry",
@@ -1132,8 +1049,7 @@ const picks = [
     team: "LAR",
     rank: 97,
     winner: "Elian",
-    amount: 6,
-    analysis: "Ranked 97th overall (QB13) in current PPR consensus — a proven, accurate veteran passer entering another season in a high-powered Rams offense. That's a real streaming/QB2 profile rather than a true difference-maker, but $6 is a fair price for that kind of consistent weekly floor; the swing risk is age-related durability, not talent or the surrounding cast."
+    amount: 6
   },
   {
     callout: "Elian",
@@ -1142,8 +1058,7 @@ const picks = [
     team: "CHI",
     rank: 77,
     winner: "Chad",
-    amount: 11,
-    analysis: "Ranked 77th overall (WR30) in current PPR consensus — a former 2nd-round pick who closed his rookie season strong, including an 8-catch, 138-yard game in Week 17, as Chicago's passing offense modernized around him. That's a real breakout candidate rather than a proven weekly starter yet, but $11 is a fair speculative price for that kind of ascending role; the swing risk is target competition within a crowded Bears receiving corps, not talent."
+    amount: 11
   },
   {
     callout: "Scottie",
@@ -1152,8 +1067,7 @@ const picks = [
     team: "PIT",
     rank: 68,
     winner: "Scottie",
-    amount: 3,
-    analysis: "Ranked 68th overall (WR26) in current PPR consensus — a big-bodied, downfield threat who posted a solid first season in Pittsburgh (59 catches, 850 yards, 6 TDs). That's outside the elite tier but a legitimate weekly flex/WR3 with real upside; the swing risk is a lingering minor injury that's cost him August reps, not talent or role."
+    amount: 3
   },
   {
     callout: "Michael",
@@ -1169,8 +1083,7 @@ const picks = [
     team: "DET",
     rank: 82,
     winner: "Michael",
-    amount: 13,
-    analysis: "Ranked 82nd overall (TE8) in current PPR consensus — a proven, high-target-share tight end who's been a real focal point in Detroit's offense since his rookie breakout. That's outside the elite TE tier gone earlier this auction, but a legitimate TE1/2 with real weekly-starter floor. $13 is a fair price for that kind of proven target share, especially in Michael's tight cap situation; the swing risk is target competition within a stacked Lions offense, not talent."
+    amount: 13
   },
   {
     callout: "Aric",
@@ -1179,8 +1092,7 @@ const picks = [
     team: "CLE",
     rank: 37,
     winner: "Chad",
-    amount: 6,
-    analysis: "Ranked 37th overall (RB18) in current PPR consensus — a powerful, downhill runner who's emerged as Cleveland's clear early-down and goal-line back. That's outside the true elite tier gone earlier this auction, but a legitimate weekly RB2 with real touchdown equity. $6 is a fair price for that kind of proven role; the swing risk is passing-down competition, not talent."
+    amount: 6
   },
   {
     callout: "Jeremy",
@@ -1189,8 +1101,7 @@ const picks = [
     team: "GB",
     rank: 88,
     winner: "Chad",
-    amount: 9,
-    analysis: "Ranked 88th overall (TE9) in current PPR consensus — was the overall TE2 in fantasy scoring behind only Trey McBride before an ACL tear ended his 2025 season in Week 9. He's on track for Week 1 and looked fully healthy in camp, so this is a real buy-low on a proven top-3 talent at a scarce position. $9 is a fair price for that kind of upside; the swing risk is snap-count management early in the year as Green Bay eases him back."
+    amount: 9
   },
   {
     callout: "Chad",
@@ -1199,8 +1110,7 @@ const picks = [
     team: "PHI",
     rank: 411,
     winner: "Chad",
-    amount: 3,
-    analysis: "Philadelphia's defense was a top-7 unit last year and only got stronger, adding Jonathan Greenard and Riq Woolen to an already loaded pass rush and secondary. Defense is the ultimate streaming/replaceable position in an 8-team league, but this is a genuinely elite unit — $3 is a clear bargain, and a fitting way to close out a stacked auction."
+    amount: 3
   },
   {
     callout: "Tarry",
@@ -1209,8 +1119,7 @@ const picks = [
     team: "CAR",
     rank: 65,
     winner: "Tarry",
-    amount: 1,
-    analysis: "Ranked 65th overall (RB28) in current PPR consensus — Carolina's clear early-down and short-yardage back with a real path to lead-back touches given the questions around the rest of the Panthers' backfield. That's outside the true elite tier, but a legitimate flex/RB3 with real workload. $1 is an absolute steal for that kind of proven role; the swing risk is a committee approach if Carolina adds competition, not talent."
+    amount: 1
   },
   {
     callout: "Michael",
@@ -1219,8 +1128,7 @@ const picks = [
     team: "JAX",
     rank: 107,
     winner: "Aric",
-    amount: 3,
-    analysis: "Ranked 107th overall (WR43) in current PPR consensus after a disappointing sophomore slide behind a crowded Jacksonville receiver room (Travis Hunter, Jakobi Meyers, Parker Washington). That's a deep bench/flex profile rather than a proven weekly starter right now, but he's flashed real chemistry with Trevor Lawrence in camp and still has the size-speed profile that made him a 1,282-yard rookie. $3 is a fair speculative price for that kind of buy-low upside; the swing risk is target competition in a crowded room, not talent."
+    amount: 3
   },
   {
     callout: "Elian",
@@ -1229,8 +1137,34 @@ const picks = [
     team: "JAX",
     rank: 78,
     winner: "Elian",
-    amount: 5,
-    analysis: "Ranked 78th overall (WR31) in current PPR consensus — a quietly efficient possession receiver who actually outproduced his expected fantasy points last season in a crowded Jacksonville room. That's a deep bench/flex profile rather than a true difference-maker, but $5 is a fair price for that kind of proven efficiency; the swing risk is target competition from Travis Hunter and Brian Thomas Jr., not talent."
+    amount: 5
+  },
+  {
+    callout: "Scottie",
+    player: "Jaylen Warren",
+    pos: "RB",
+    team: "PIT",
+    rank: 71,
+    winner: "Powers",
+    amount: 9
+  },
+  {
+    callout: "Tarry",
+    player: "Trevor Lawrence",
+    pos: "QB",
+    team: "JAX",
+    rank: 75,
+    winner: "Tarry",
+    amount: 1
+  },
+  {
+    callout: "Powers",
+    player: "Rashid Shaheed",
+    pos: "WR",
+    team: "SEA",
+    rank: 150,
+    winner: "Powers",
+    amount: 2
   }
 ];
 
@@ -1256,12 +1190,9 @@ logHeader.innerHTML = ['Call Out','Player','Pos','Team', ...bidOrder].map(h => `
 const logBody = document.querySelector('#logTable tbody');
 picks.forEach((p, idx) => {
   const tr = document.createElement('tr');
-  const analysisBtn = p.analysis
-    ? `<button type="button" class="analysis-btn" id="analysis-btn-${idx}" onclick="toggleAnalysis(${idx})">Analysis \u25BE</button>`
-    : '';
   const playerCell = p.passed
     ? `<em style="color:#999;">Passed</em>${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}`
-    : `${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}${analysisBtn}`;
+    : `${p.player}${p.draft ? '<span class="draft-tag">Rookie Draft</span>' : ''}`;
   let cells = `<td>${p.callout}</td><td>${playerCell}</td><td>${p.pos}</td><td>${p.team}</td>`;
 
   if (p.winner) {
@@ -1293,17 +1224,6 @@ picks.forEach((p, idx) => {
 
   tr.innerHTML = cells;
   logBody.appendChild(tr);
-
-  if (p.analysis) {
-    const analysisTr = document.createElement('tr');
-    analysisTr.className = 'analysis-row hidden';
-    analysisTr.id = 'analysis-row-' + idx;
-    const td = document.createElement('td');
-    td.colSpan = totalCols;
-    td.textContent = p.analysis;
-    analysisTr.appendChild(td);
-    logBody.appendChild(analysisTr);
-  }
 });
 
 // Team stats: $ spent and Max Bid, computed from keepers + resolved picks.
@@ -1436,6 +1356,7 @@ rosterOwners.forEach(owner => {
 picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
+  { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
   { player: "Justin Herbert", pos: "QB", team: "LAC" },
   { player: "Tony Pollard", pos: "RB", team: "TEN" },
   { player: "Rhamondre Stevenson", pos: "RB", team: "NE" },
@@ -1446,10 +1367,13 @@ const top10Pool = [
   { player: "Marvin Harrison Jr.", pos: "WR", team: "ARI" },
   { player: "Jonathon Brooks", pos: "RB", team: "CAR" },
   { player: "Trevor Lawrence", pos: "QB", team: "JAX" },
+  { player: "Parker Washington", pos: "WR", team: "JAX" },
   { player: "Jameson Williams", pos: "WR", team: "DET" },
   { player: "Rachaad White", pos: "RB", team: "WSH" },
+  { player: "Sam LaPorta", pos: "TE", team: "DET" },
   { player: "Aaron Jones Sr.", pos: "RB", team: "MIN" },
   { player: "Stefon Diggs", pos: "WR", team: "WSH" },
+  { player: "Tucker Kraft", pos: "TE", team: "GB" },
   { player: "Jake Ferguson", pos: "TE", team: "DAL" },
   { player: "Jakobi Meyers", pos: "WR", team: "JAX" }
 ];
