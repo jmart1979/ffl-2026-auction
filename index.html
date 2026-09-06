@@ -553,7 +553,7 @@ const keepersData = {
 // Manually maintained; empty for everyone until someone declares out.
 const outPositions = {
   Aric: [], Chad: ["QB", "RB", "WR", "TE", "K", "DEF"], Elian: [], Jeremy: [],
-  Michael: [], Powers: [], Scottie: [], Tarry: []
+  Michael: [], Powers: [], Scottie: ["QB", "RB", "WR", "TE", "K", "DEF"], Tarry: []
 };
 
 // Auction log data
@@ -1192,6 +1192,41 @@ const picks = [
     rank: 74,
     winner: "Aric",
     amount: 4
+  },
+  {
+    callout: "Michael",
+    player: "Rhamondre Stevenson",
+    pos: "RB",
+    team: "NE",
+    rank: 62,
+    winner: "Scottie",
+    amount: 6
+  },
+  {
+    callout: "Elian",
+    player: "Isaiah Likely",
+    pos: "TE",
+    team: "NYG",
+    rank: 135,
+    winner: "Scottie",
+    amount: 6
+  },
+  {
+    callout: "Scottie",
+    player: "Michael Wilson",
+    pos: "WR",
+    team: "ARI",
+    rank: 91,
+    winner: "Powers",
+    amount: 1
+  },
+  {
+    callout: "Aric",
+    player: "Justin Herbert",
+    pos: "QB",
+    team: "LAC",
+    rank: 59,
+    bids: { Aric: 1, Chad: "out", Tarry: "out", Michael: "out", Elian: "out", Scottie: "out", Jeremy: "out" }
   }
 ];
 
