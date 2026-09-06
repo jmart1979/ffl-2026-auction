@@ -454,7 +454,7 @@
 <div id="rostersTab" style="display:none;">
 
   <h2 style="margin-top:0;">Team Max / $ Out</h2>
-  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total). Shaded green-to-red relative to the other 7 teams right now &mdash; more cap space is greener. Out = positions a team has said they're done bidding on for the rest of the auction.</div>
+  <div class="order-note">Max Bid = $200 cap &mdash; $ already spent &mdash; $1 reserved for every other unfilled roster spot (15 total). Shaded green-to-red relative to the still-active teams right now &mdash; more cap space is greener. A team that's out on every position (roster full) shows a blank Max Bid instead of a number, so it doesn't skew the color scale for teams still bidding. Out = positions a team has said they're done bidding on for the rest of the auction.</div>
   <table id="maxOutTable">
     <thead><tr><th>Team</th><th>Max Bid</th><th>Out</th></tr></thead>
     <tbody></tbody>
@@ -1226,7 +1226,8 @@ const picks = [
     pos: "QB",
     team: "LAC",
     rank: 59,
-    bids: { Aric: 1, Chad: "out", Tarry: "out", Michael: "out", Elian: "out", Scottie: "out", Jeremy: "out" }
+    winner: "Aric",
+    amount: 1
   }
 ];
 
@@ -1305,10 +1306,15 @@ function teamStats(owner) {
 }
 
 // Team Max / $ Out table
-// Max Bid gets a green-to-red background scale, relative to the other 7
-// teams right now — more cap space is "good" (greener), less is "bad" (redder).
-// This is a moving target: it recalculates fresh off whatever's in `picks`
-// each time the page loads, so it always reflects the current auction state.
+// Max Bid gets a green-to-red background scale, relative to the other still-
+// active teams right now — more cap space is "good" (greener), less is "bad"
+// (redder). A team that's declared "out" on all 6 positions is done bidding
+// for the rest of the auction (roster's full), so its Max Bid is blanked out
+// entirely rather than shown as a number — otherwise a maxed-out or negative
+// leftover value would skew the color scale for everyone still actually
+// bidding. This is a moving target: it recalculates fresh off whatever's in
+// `picks` each time the page loads, so it always reflects the current
+// auction state.
 function maxBidColor(val, min, max) {
   const range = (max - min) || 1;
   const t = (val - min) / range; // 0 (lowest) to 1 (highest)
@@ -1318,18 +1324,29 @@ function maxBidColor(val, min, max) {
   return `rgb(${r},${g},${b})`;
 }
 
-const allMaxBids = rosterOwners.map(name => teamStats(name).maxBid);
-const minMaxBid = Math.min(...allMaxBids);
-const maxMaxBid = Math.max(...allMaxBids);
+const ALL_POS = ["QB", "RB", "WR", "TE", "K", "DEF"];
+function isDoneBidding(name) {
+  const out = outPositions[name] || [];
+  return ALL_POS.every(p => out.includes(p));
+}
+
+const activeMaxBids = rosterOwners
+  .filter(name => !isDoneBidding(name))
+  .map(name => teamStats(name).maxBid);
+const minMaxBid = activeMaxBids.length ? Math.min(...activeMaxBids) : 0;
+const maxMaxBid = activeMaxBids.length ? Math.max(...activeMaxBids) : 0;
 
 const maxOutBody = document.querySelector('#maxOutTable tbody');
 rosterOwners.forEach(name => {
   const s = teamStats(name);
   const out = outPositions[name] || [];
   const outText = out.length ? out.join(', ') : '\u2014';
-  const bidColor = maxBidColor(s.maxBid, minMaxBid, maxMaxBid);
+  const done = isDoneBidding(name);
+  const maxBidCell = done
+    ? `<td>\u2014</td>`
+    : `<td style="background:${maxBidColor(s.maxBid, minMaxBid, maxMaxBid)};font-weight:700;">$${s.maxBid}</td>`;
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${name}</td><td style="background:${bidColor};font-weight:700;">$${s.maxBid}</td><td>${outText}</td>`;
+  tr.innerHTML = `<td>${name}</td>${maxBidCell}<td>${outText}</td>`;
   maxOutBody.appendChild(tr);
 });
 
@@ -1419,23 +1436,14 @@ picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
   { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
-  { player: "Justin Herbert", pos: "QB", team: "LAC" },
   { player: "Tony Pollard", pos: "RB", team: "TEN" },
-  { player: "Rhamondre Stevenson", pos: "RB", team: "NE" },
-  { player: "TreVeyon Henderson", pos: "RB", team: "NE" },
   { player: "Kenneth Gainwell", pos: "RB", team: "TB" },
   { player: "Jaxson Dart", pos: "QB", team: "NYG" },
-  { player: "Jaylen Warren", pos: "RB", team: "PIT" },
-  { player: "Marvin Harrison Jr.", pos: "WR", team: "ARI" },
   { player: "Jonathon Brooks", pos: "RB", team: "CAR" },
-  { player: "Trevor Lawrence", pos: "QB", team: "JAX" },
-  { player: "Parker Washington", pos: "WR", team: "JAX" },
   { player: "Jameson Williams", pos: "WR", team: "DET" },
   { player: "Rachaad White", pos: "RB", team: "WSH" },
-  { player: "Sam LaPorta", pos: "TE", team: "DET" },
   { player: "Aaron Jones Sr.", pos: "RB", team: "MIN" },
   { player: "Stefon Diggs", pos: "WR", team: "WSH" },
-  { player: "Tucker Kraft", pos: "TE", team: "GB" },
   { player: "Jake Ferguson", pos: "TE", team: "DAL" },
   { player: "Jakobi Meyers", pos: "WR", team: "JAX" }
 ];
