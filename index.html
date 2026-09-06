@@ -466,7 +466,7 @@
   </table>
 
   <h2 style="margin-top:24px;">Roster Grid</h2>
-  <div class="order-note">Each position has its own color (QB purple, RB green, WR blue, TE orange, K gray, DEF pink) &mdash; bench rows match their starting position's color. Within a position, the starting slot goes to whoever's actually ranked higher in current consensus, not whoever cost more &mdash; so a cheap keeper can rightly start over a pricier auction pickup.</div>
+  <div class="order-note">Each position has its own color (QB purple, RB green, WR blue, TE orange, K gray, DEF pink). Bench slots are generic &mdash; any position can land in any open bench spot, so a team with 3 QBs or 6 WRs never gets one silently dropped &mdash; each bench cell is still colored by whichever player actually sits there. Within a position, the starting slot goes to whoever's actually ranked higher in current consensus, not whoever cost more &mdash; so a cheap keeper can rightly start over a pricier auction pickup.</div>
   <table id="rosterTable">
     <thead><tr id="rosterHeader"></tr></thead>
     <tbody></tbody>
@@ -484,10 +484,14 @@ function showTab(tab) {
 
 const bidOrder = ["Chad","Tarry","Michael","Elian","Scottie","Powers","Aric","Jeremy"];
 const rosterOwners = ["Aric","Chad","Elian","Jeremy","Michael","Powers","Scottie","Tarry"];
+// Bench slots are generic (not tied to a position) — a team can end up with
+// 3 QBs or 6 WRs, and every bench spot should be able to hold any of them.
+// Position-pinned bench slots used to silently drop a player once that
+// position's own bench slots ran out (e.g. a 3rd QB with only 1 "B (QB)"
+// slot available) — this fixes that.
 const positions = ["QB","RB","RB","WR","WR","WR","TE","K","DEF",
-  "B (QB)","B (RB)","B (RB)","B (RB)","B (RB)",
-  "B (WR)","B (WR)","B (WR)","B (WR)","B (WR)",
-  "B (TE)","B (DEF)"];
+  "Bench","Bench","Bench","Bench","Bench","Bench",
+  "Bench","Bench","Bench","Bench","Bench","Bench"];
 
 // Keeper submission status — teams turn green here once their keepers are in.
 // rosterOwners is already alphabetical, so it's reused for this list.
@@ -1354,7 +1358,8 @@ const picks = [
     pos: "WR",
     team: "DET",
     rank: 261,
-    bids: { Jeremy: 2, Chad: "out", Tarry: "out", Michael: "out", Elian: "out", Scottie: "out", Aric: "out" }
+    winner: "Jeremy",
+    amount: 2
   },
   {
     callout: "Tarry",
@@ -1364,6 +1369,40 @@ const picks = [
     rank: 414,
     winner: "Tarry",
     amount: 1
+  },
+  {
+    callout: "Elian",
+    player: "RJ Harvey",
+    pos: "RB",
+    team: "DEN",
+    rank: 109,
+    winner: "Jeremy",
+    amount: 4
+  },
+  {
+    callout: "Powers",
+    player: "Quentin Johnston",
+    pos: "WR",
+    team: "LAC",
+    rank: 134,
+    winner: "Aric",
+    amount: 7
+  },
+  {
+    callout: "Aric",
+    player: "Passed",
+    pos: "\u2014",
+    team: "\u2014",
+    passed: true
+  },
+  {
+    callout: "Jeremy",
+    player: "MarShawn Lloyd",
+    pos: "RB",
+    team: "GB",
+    rank: 95,
+    winner: "Jeremy",
+    amount: 14
   }
 ];
 
@@ -1505,9 +1544,8 @@ function findOpenSlot(owner, pos) {
   for (let i = 0; i < positions.length; i++) {
     if (positions[i] === pos && !rosterAssignments[owner][i]) return i;
   }
-  const benchLabel = `B (${pos})`;
   for (let i = 0; i < positions.length; i++) {
-    if (positions[i] === benchLabel && !rosterAssignments[owner][i]) return i;
+    if (positions[i] === "Bench" && !rosterAssignments[owner][i]) return i;
   }
   return -1;
 }
@@ -1520,7 +1558,7 @@ rosterOwners.forEach(owner => {
   entries.sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
   entries.forEach(e => {
     const slot = findOpenSlot(owner, e.pos);
-    if (slot !== -1) rosterAssignments[owner][slot] = `${e.player} ($${e.salary})`;
+    if (slot !== -1) rosterAssignments[owner][slot] = { text: `${e.player} ($${e.salary})`, pos: e.pos };
   });
 });
 
@@ -1529,8 +1567,10 @@ rosterHeader.innerHTML = '<th>Position</th>' + rosterOwners.map(o => `<th>${o}</
 const rosterBody = document.querySelector('#rosterTable tbody');
 
 // Each position gets its own light background tint so the grid is easy to
-// scan at a glance — bench rows share the same color as their starting
-// position (e.g. "B (RB)" gets the same tint as "RB").
+// scan at a glance. Starter rows are a fixed position, so the whole row
+// shares one color. Bench rows are generic now (any position can land in
+// any bench slot), so each cell is colored individually based on whichever
+// player actually occupies it for that team, rather than the row itself.
 const positionColors = {
   QB: '#ede9fe',
   RB: '#d1fae5',
@@ -1546,13 +1586,19 @@ function positionColor(pos) {
 
 positions.forEach((pos, posIdx) => {
   const tr = document.createElement('tr');
-  const bg = positionColor(pos);
-  tr.innerHTML = `<td style="background:${bg};font-weight:700;">${pos}</td>` + rosterOwners.map(owner => {
-    const player = rosterAssignments[owner][posIdx];
-    return player
-      ? `<td class="filled" style="background:${bg};">${player}</td>`
-      : `<td class="empty" style="background:${bg};">\u2014</td>`;
-  }).join('');
+  const isBench = pos === "Bench";
+  const rowBg = isBench ? '#f7f7f8' : positionColor(pos);
+  let rowHtml = `<td style="background:${rowBg};font-weight:700;">${pos}</td>`;
+  rosterOwners.forEach(owner => {
+    const cell = rosterAssignments[owner][posIdx];
+    if (cell) {
+      const cellBg = isBench ? positionColor(cell.pos) : rowBg;
+      rowHtml += `<td class="filled" style="background:${cellBg};">${cell.text}</td>`;
+    } else {
+      rowHtml += `<td class="empty" style="background:${rowBg};">\u2014</td>`;
+    }
+  });
+  tr.innerHTML = rowHtml;
   rosterBody.appendChild(tr);
 });
 const footerTr = document.createElement('tr');
