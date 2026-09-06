@@ -1228,6 +1228,49 @@ const picks = [
     rank: 59,
     winner: "Aric",
     amount: 1
+  },
+  {
+    callout: "Aric",
+    player: "Kyle Monangai",
+    pos: "RB",
+    team: "CHI",
+    rank: 100,
+    winner: "Jeremy",
+    amount: 2
+  },
+  {
+    callout: "Jeremy",
+    player: "Travis Kelce",
+    pos: "TE",
+    team: "KC",
+    rank: 104,
+    winner: "Tarry",
+    amount: 9
+  },
+  {
+    callout: "Michael",
+    player: "Passed",
+    pos: "\u2014",
+    team: "\u2014",
+    passed: true
+  },
+  {
+    callout: "Chad",
+    player: "Jake Ferguson",
+    pos: "TE",
+    team: "DAL",
+    rank: 109,
+    winner: "Tarry",
+    amount: 8
+  },
+  {
+    callout: "Tarry",
+    player: "Jaxson Dart",
+    pos: "QB",
+    team: "NYG",
+    rank: 70,
+    winner: "Powers",
+    amount: 1
   }
 ];
 
@@ -1435,17 +1478,26 @@ rosterOwners.forEach(owner => {
 picks.forEach(p => { if (p.winner) rosteredPlayers.add(p.player); });
 
 const top10Pool = [
-  { player: "Chuba Hubbard", pos: "RB", team: "CAR" },
   { player: "Tony Pollard", pos: "RB", team: "TEN" },
   { player: "Kenneth Gainwell", pos: "RB", team: "TB" },
-  { player: "Jaxson Dart", pos: "QB", team: "NYG" },
+  { player: "Jaylen Warren", pos: "RB", team: "PIT" },
   { player: "Jonathon Brooks", pos: "RB", team: "CAR" },
   { player: "Jameson Williams", pos: "WR", team: "DET" },
   { player: "Rachaad White", pos: "RB", team: "WSH" },
   { player: "Aaron Jones Sr.", pos: "RB", team: "MIN" },
   { player: "Stefon Diggs", pos: "WR", team: "WSH" },
-  { player: "Jake Ferguson", pos: "TE", team: "DAL" },
-  { player: "Jakobi Meyers", pos: "WR", team: "JAX" }
+  { player: "Jakobi Meyers", pos: "WR", team: "JAX" },
+  { player: "Christian Watson", pos: "WR", team: "GB" },
+  { player: "David Njoku", pos: "TE", team: "CLE" },
+  { player: "Matthew Golden", pos: "WR", team: "GB" },
+  { player: "Zach Charbonnet", pos: "RB", team: "SEA" },
+  { player: "Alec Pierce", pos: "WR", team: "IND" },
+  { player: "Woody Marks", pos: "RB", team: "HOU" },
+  { player: "Dalton Kincaid", pos: "TE", team: "BUF" },
+  { player: "Tyler Shough", pos: "QB", team: "NO" },
+  { player: "J.K. Dobbins", pos: "RB", team: "DEN" },
+  { player: "Cam Ward", pos: "QB", team: "TEN" },
+  { player: "Mark Andrews", pos: "TE", team: "BAL" }
 ];
 
 const availListEl = document.getElementById('availList');
