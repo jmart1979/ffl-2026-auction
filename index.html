@@ -44,6 +44,11 @@
     border-color: #2f6fed;
     color: #fff;
   }
+  .order-pill.done {
+    background: #f7f7f8;
+    border-color: #e5e5e5;
+    color: #aaa;
+  }
   .order-note { font-size: 12px; color: #888; margin-bottom: 4px; }
 
   .keeper-strip {
@@ -424,7 +429,7 @@
       <div class="keeper-strip" id="keeperStrip"></div>
 
       <h2>Call-Out Order</h2>
-      <div class="order-note">Rotation repeats in this sequence for the whole auction:</div>
+      <div class="order-note">Rotation repeats in this sequence for the whole auction &mdash; teams with a full roster (&#10003;) are done and skipped:</div>
       <div class="order-strip" id="orderStrip"></div>
     </div>
 
@@ -555,6 +560,14 @@ const outPositions = {
   Aric: [], Chad: ["QB", "RB", "WR", "TE", "K", "DEF"], Elian: [], Jeremy: [],
   Michael: [], Powers: [], Scottie: ["QB", "RB", "WR", "TE", "K", "DEF"], Tarry: []
 };
+
+// A team that's out on all 6 positions has a full roster and is done bidding
+// for the rest of the auction — they no longer take call-out turns at all.
+const ALL_POS = ["QB", "RB", "WR", "TE", "K", "DEF"];
+function isDoneBidding(name) {
+  const out = outPositions[name] || [];
+  return ALL_POS.every(p => out.includes(p));
+}
 
 // Auction log data
 // Each pick is either resolved (has a `winner`+`amount`) or still in progress
@@ -1194,7 +1207,7 @@ const picks = [
     amount: 4
   },
   {
-    callout: "Michael",
+    callout: "Elian",
     player: "Rhamondre Stevenson",
     pos: "RB",
     team: "NE",
@@ -1203,7 +1216,7 @@ const picks = [
     amount: 6
   },
   {
-    callout: "Elian",
+    callout: "Scottie",
     player: "Isaiah Likely",
     pos: "TE",
     team: "NYG",
@@ -1212,7 +1225,7 @@ const picks = [
     amount: 6
   },
   {
-    callout: "Scottie",
+    callout: "Powers",
     player: "Michael Wilson",
     pos: "WR",
     team: "ARI",
@@ -1230,7 +1243,7 @@ const picks = [
     amount: 1
   },
   {
-    callout: "Aric",
+    callout: "Jeremy",
     player: "Kyle Monangai",
     pos: "RB",
     team: "CHI",
@@ -1239,7 +1252,7 @@ const picks = [
     amount: 2
   },
   {
-    callout: "Jeremy",
+    callout: "Tarry",
     player: "Travis Kelce",
     pos: "TE",
     team: "KC",
@@ -1255,7 +1268,7 @@ const picks = [
     passed: true
   },
   {
-    callout: "Chad",
+    callout: "Elian",
     player: "Jake Ferguson",
     pos: "TE",
     team: "DAL",
@@ -1264,7 +1277,7 @@ const picks = [
     amount: 8
   },
   {
-    callout: "Tarry",
+    callout: "Powers",
     player: "Jaxson Dart",
     pos: "QB",
     team: "NYG",
@@ -1273,7 +1286,7 @@ const picks = [
     amount: 1
   },
   {
-    callout: "Elian",
+    callout: "Aric",
     player: "Los Angeles Chargers D",
     pos: "DEF",
     team: "LAC",
@@ -1282,7 +1295,7 @@ const picks = [
     amount: 7
   },
   {
-    callout: "Scottie",
+    callout: "Jeremy",
     player: "Jameson Williams",
     pos: "WR",
     team: "DET",
@@ -1291,7 +1304,7 @@ const picks = [
     amount: 5
   },
   {
-    callout: "Powers",
+    callout: "Tarry",
     player: "Christian Watson",
     pos: "WR",
     team: "GB",
@@ -1300,12 +1313,21 @@ const picks = [
     amount: 9
   },
   {
-    callout: "Aric",
+    callout: "Michael",
     player: "Xavier Worthy",
     pos: "WR",
     team: "KC",
     rank: 136,
     winner: "Michael",
+    amount: 1
+  },
+  {
+    callout: "Elian",
+    player: "Dallas Goedert",
+    pos: "TE",
+    team: "PHI",
+    rank: 94,
+    winner: "Elian",
     amount: 1
   }
 ];
@@ -1313,15 +1335,23 @@ const picks = [
 // Call-out order strip — the rookie draft (4 non-playoff teams) is done, so
 // the regular auction rotation starts fresh at the top of bidOrder. Only
 // non-draft picks count toward this rotation going forward, and a pass
-// still takes up a turn even though nobody won it.
+// still takes up a turn even though nobody won it. Teams that are done
+// bidding (roster full) don't take turns anymore — this is just a rough
+// suggestion of whose turn is next, not authoritative, but it should never
+// land on a team that's already finished, so we skip forward past any
+// done team until we hit one still actually bidding.
 const auctionOnlyResolved = picks.filter(p => !p.draft && (p.winner || p.passed)).length;
-const nextIndex = auctionOnlyResolved % bidOrder.length;
+let nextIndex = auctionOnlyResolved % bidOrder.length;
+for (let guard = 0; guard < bidOrder.length && isDoneBidding(bidOrder[nextIndex]); guard++) {
+  nextIndex = (nextIndex + 1) % bidOrder.length;
+}
 
 const stripEl = document.getElementById('orderStrip');
 bidOrder.forEach((name, i) => {
   const span = document.createElement('span');
-  span.className = 'order-pill' + (i === nextIndex ? ' next' : '');
-  span.textContent = (i === nextIndex ? '\u25B6 ' : '') + name;
+  const done = isDoneBidding(name);
+  span.className = 'order-pill' + (i === nextIndex ? ' next' : '') + (done ? ' done' : '');
+  span.textContent = (i === nextIndex ? '\u25B6 ' : '') + name + (done ? ' \u2713' : '');
   stripEl.appendChild(span);
 });
 
@@ -1401,12 +1431,6 @@ function maxBidColor(val, min, max) {
   const g = Math.round(190 + 40 * t);
   const b = Math.round(190 - 90 * t);
   return `rgb(${r},${g},${b})`;
-}
-
-const ALL_POS = ["QB", "RB", "WR", "TE", "K", "DEF"];
-function isDoneBidding(name) {
-  const out = outPositions[name] || [];
-  return ALL_POS.every(p => out.includes(p));
 }
 
 const activeMaxBids = rosterOwners
