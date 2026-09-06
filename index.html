@@ -558,7 +558,7 @@ const keepersData = {
 // Manually maintained; empty for everyone until someone declares out.
 const outPositions = {
   Aric: [], Chad: ["QB", "RB", "WR", "TE", "K", "DEF"], Elian: [], Jeremy: [],
-  Michael: [], Powers: [], Scottie: ["QB", "RB", "WR", "TE", "K", "DEF"], Tarry: []
+  Michael: ["QB", "RB", "WR", "TE", "K", "DEF"], Powers: [], Scottie: ["QB", "RB", "WR", "TE", "K", "DEF"], Tarry: ["QB", "RB", "WR", "TE", "K", "DEF"]
 };
 
 // A team that's out on all 6 positions has a full roster and is done bidding
@@ -1328,6 +1328,41 @@ const picks = [
     team: "PHI",
     rank: 94,
     winner: "Elian",
+    amount: 1
+  },
+  {
+    callout: "Powers",
+    player: "Blake Corum",
+    pos: "RB",
+    team: "LAR",
+    rank: 112,
+    winner: "Powers",
+    amount: 1
+  },
+  {
+    callout: "Aric",
+    player: "Evan McPherson",
+    pos: "K",
+    team: "CIN",
+    rank: 413,
+    winner: "Aric",
+    amount: 1
+  },
+  {
+    callout: "Jeremy",
+    player: "Isaac TeSlaa",
+    pos: "WR",
+    team: "DET",
+    rank: 261,
+    bids: { Jeremy: 2, Chad: "out", Tarry: "out", Michael: "out", Elian: "out", Scottie: "out", Aric: "out" }
+  },
+  {
+    callout: "Tarry",
+    player: "Chase McLaughlin",
+    pos: "K",
+    team: "TB",
+    rank: 414,
+    winner: "Tarry",
     amount: 1
   }
 ];
